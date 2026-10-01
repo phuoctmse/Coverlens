@@ -26,6 +26,22 @@ Current scope: PHASE 1 only — run end to end on the OTT web domain (`domains/o
 - Out of scope for phase 1: training, OpenAPI adapter, a second domain, Playwright.
 - If the brief is ambiguous or conflicts, ask instead of guessing.
 
+## Design decisions (agreed 2026-10-01)
+
+- Unit of coverage is the acceptance criterion (e.g. `US-01.AC1`). Story status is rolled up from its ACs: all covered → covered, some → partial, none → gap.
+- Verdict statuses: `COVERED`, `GAP`, `UNCERTAIN` (LLM failure, invalid JSON after one retry, or invalid citation). Each verdict records the deciding tier. No `PARTIAL` in phase 1.
+- A `COVERED` verdict may only cite case IDs from the candidates shown to the judge.
+- Tier 1 is plain functions in core, not a Protocol:
+  - "certain gap" = no case's requirement ref points at the AC and the top BM25 score is below `τ_gap`;
+  - "certain orphan" = the case has no ref, no tag, and its top BM25 score against every AC is below `τ_orphan`;
+  - everything else → top-k candidates for the next tier.
+- Thresholds and the tag → story map live in the domain pack. Tags only add candidates; they are never evidence of coverage.
+- Canary: Tier 1 must produce 0 false "certain gap" verdicts on the eval set.
+- Tier 2 and Tier 3 both implement `Verifier`; `judge()` returns `Verdict | None`, where `None` passes to the next tier. Tier 2 is a no-op verifier for now. A cascade orchestrator in core runs Tier 1, then the verifiers in order.
+- The LLM judge sees case content only (title, preconditions, steps, expected result), never the requirement ref.
+- The report separates orphan cases (claim nothing, cover nothing) from mis-referenced cases (reference an AC but do not cover it).
+- allpairspy is used only to measure: pack dimensions + constraints define the required value pairs, and the "Coverage" sheet reports which pairs the suite exercises, next to the per-story rollup. It never outputs test cases. Built last in phase 1.
+
 ## Layout
 
 ```
