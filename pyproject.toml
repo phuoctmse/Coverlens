@@ -1,0 +1,28 @@
+[project]
+name = "coverlens"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "phuoctmse", email = "phuoctmse184067@fpt.edu.vn" }
+]
+requires-python = ">=3.14.3"
+dependencies = [
+    "allpairspy>=2.5.1",
+    "openpyxl>=3.1.5",
+    "pydantic>=2.13.5",
+    "pyyaml>=6.0.3",
+]
+
+[project.scripts]
+coverlens = "coverlens:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.9",
+]
