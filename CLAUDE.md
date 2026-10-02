@@ -60,6 +60,7 @@ uv run pytest                # tests
 uv run ruff check            # lint
 uv run ruff format           # format
 uv run coverlens run --domain domains/ott_web/pack.yaml --spec data/ott_web/user_stories.md --suite data/ott_web/test_cases.xlsx --out out/ [--fake]
+uv run python -m eval --fake   # score against answer_key.json; exits 1 if the Tier 1 canary fails
 ```
 
 Run ruff and pytest before every commit. Python 3.14 (user's choice; the original brief said 3.12), type hints everywhere.

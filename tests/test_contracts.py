@@ -86,3 +86,18 @@ def test_only_the_three_extension_points_are_protocols() -> None:
                 protocols.append(node.name)
     assert set(protocols) <= ALLOWED_PROTOCOLS, f"extra protocols: {protocols}"
     assert len(protocols) == len(set(protocols)), f"duplicates: {protocols}"
+
+
+def test_pipeline_never_imports_eval() -> None:
+    offenders: list[str] = []
+    for file in python_files(PACKAGE_DIR):
+        for node in ast.walk(ast.parse(file.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.Import):
+                modules = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                modules = [node.module or ""]
+            else:
+                continue
+            if any(m == "eval" or m.startswith("eval.") for m in modules):
+                offenders.append(str(file.relative_to(ROOT)))
+    assert offenders == [], f"src/ imports eval/: {offenders}"

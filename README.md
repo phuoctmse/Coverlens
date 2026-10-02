@@ -46,6 +46,17 @@ uv run coverlens run \
 Everything domain-specific (column names, dimensions, tags, glossary,
 thresholds) lives in a domain pack such as `domains/ott_web/pack.yaml`.
 
+## Evaluate
+
+```
+uv run python -m eval --fake
+```
+
+Scores the run against `data/ott_web/answer_key.json` (gap and coverage
+precision/recall, citation accuracy, candidate recall, orphans, decoys) and
+exits 1 if the canary fails: Tier 1 must never call a covered requirement a
+gap. Only `eval/` reads the answer key.
+
 ## Develop
 
 ```

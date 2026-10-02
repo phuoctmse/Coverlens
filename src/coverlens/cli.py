@@ -5,15 +5,8 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from coverlens.adapters.markdown_spec import MarkdownSpecAdapter, SpecError
-from coverlens.adapters.xlsx_suite import SuiteError, XlsxSuiteAdapter
-from coverlens.core.cascade import run_cascade
-from coverlens.core.models import Case
-from coverlens.core.pack import PackError, load_pack
-from coverlens.core.protocols import Verifier
-from coverlens.core.report import Report, build_report
-from coverlens.verifiers.fake import FakeVerifier
-from coverlens.verifiers.noop import NoopVerifier
+from coverlens.core.report import Report
+from coverlens.pipeline import INPUT_ERRORS, JudgeUnavailableError, analyze
 from coverlens.writers.excel_writer import ExcelWriter
 from coverlens.writers.json_writer import JsonWriter
 
@@ -42,20 +35,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def run_pipeline(args: argparse.Namespace) -> tuple[Report, list[Path]]:
-    if not args.fake:
-        raise CliError("the Ollama judge is not built yet; pass --fake for now")
     try:
-        pack = load_pack(args.domain)
-        requirements = MarkdownSpecAdapter().read(args.spec, pack)
-        cases: list[Case] = (
-            XlsxSuiteAdapter().read(args.suite, pack) if args.suite else []
-        )
-    except (PackError, SpecError, SuiteError) as exc:
+        report = analyze(args.domain, args.spec, args.suite, fake=args.fake)
+    except (*INPUT_ERRORS, JudgeUnavailableError) as exc:
         raise CliError(str(exc)) from exc
-
-    verifiers: list[Verifier] = [NoopVerifier(), FakeVerifier(glossary=pack.glossary)]
-    result = run_cascade(requirements, cases, pack, verifiers)
-    report = build_report(requirements, cases, result, pack.name)
     try:
         written = [
             writer.write(report, args.out) for writer in (ExcelWriter(), JsonWriter())
