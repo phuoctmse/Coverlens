@@ -7,7 +7,6 @@ import subprocess
 import sys
 
 COMMIT_RE = re.compile(r"(?:^|[;&|(]\s*)(?:rtk\s+)?git\s+commit\b")
-PYTEST_NO_TESTS = 5
 
 CHECKS: list[tuple[str, list[str]]] = [
     ("ruff check", ["uv", "run", "ruff", "check"]),
@@ -27,10 +26,7 @@ def main() -> int:
         result = subprocess.run(
             args, cwd=project, capture_output=True, text=True, check=False
         )
-        ok = result.returncode == 0 or (
-            name == "pytest" and result.returncode == PYTEST_NO_TESTS
-        )
-        if not ok:
+        if result.returncode != 0:
             output = (result.stdout + result.stderr).strip()
             tail = "\n".join(output.splitlines()[-30:])
             print(f"Commit blocked: `{name}` failed.\n{tail}", file=sys.stderr)
