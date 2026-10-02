@@ -1,0 +1,60 @@
+# Domain pack for the OTT web player (fictional "Streamly" service).
+# Everything domain-specific lives here; src/coverlens/core/ stays generic.
+
+name: ott_web
+
+suite:
+  sheet: Test cases
+  columns:              # Case field -> suite header
+    id: Test ID
+    title: Title
+    preconditions: Preconditions
+    steps: Steps
+    expected_result: Expected result
+    refs: Requirement ref
+    tags: Tags
+  dimensions:           # columns describing the environment a case runs in
+    - Browser
+    - Protocol / DRM
+    - Region
+    - User state
+    - Content type
+    - Player state
+    - Network
+  list_separator: ","
+
+# Suite tag -> story. Tags only add candidates; they are never evidence of coverage.
+tag_map:
+  account: US-01
+  catalogue: US-02
+  playback: US-03
+  live: US-04
+  controls: US-05
+  quality: US-06
+  tracks: US-07
+  entitlement: US-08
+  region: US-09
+  limits: US-10
+  resilience: US-11
+  drm: US-12
+  progress: US-13
+
+# Words that must never appear in src/coverlens/core/ (enforced by a contract test).
+# Generic English words that core may legitimately use (live, edge, stream) are left out.
+forbidden_core_terms:
+  - browser
+  - chrome
+  - firefox
+  - safari
+  - drm
+  - widevine
+  - fairplay
+  - playready
+  - hls
+  - region
+  - entitlement
+  - subscription
+  - playback
+  - subtitle
+  - vod
+  - ott

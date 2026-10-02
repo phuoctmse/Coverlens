@@ -4,6 +4,8 @@ import hashlib
 import re
 from pathlib import Path
 
+from coverlens.core.pack import load_pack
+
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_DIR = ROOT / "src" / "coverlens"
 CORE_DIR = PACKAGE_DIR / "core"
@@ -16,8 +18,14 @@ EXPECTED_SHA256: dict[str, str] = {
     "user_stories.md": "c7df8e4ce13b0565ccea220d27679fcf6a9256965771e06f14b367c9289bba3f",
 }
 
-# Examples named in CLAUDE.md. Replace with the pack's term list once pack.yaml exists.
-FORBIDDEN_CORE_TERMS = ["region", "drm", "browser", "entitlement"]
+PACK_FILES = sorted((ROOT / "domains").glob("*/pack.yaml"))
+
+# The examples named in CLAUDE.md, plus every pack's own list.
+FORBIDDEN_CORE_TERMS = sorted(
+    {"region", "drm", "browser", "entitlement"}.union(
+        *(load_pack(path).forbidden_core_terms for path in PACK_FILES)
+    )
+)
 
 
 def python_files(directory: Path) -> list[Path]:
@@ -45,6 +53,11 @@ def test_pipeline_never_mentions_answer_key() -> None:
         if "answer_key" in file.read_text(encoding="utf-8")
     ]
     assert bad_files == [], f"answer_key found in: {bad_files}"
+
+
+def test_domain_packs_are_found() -> None:
+    assert PACK_FILES, "no domains/*/pack.yaml found"
+    assert "widevine" in FORBIDDEN_CORE_TERMS
 
 
 def test_core_has_no_domain_words() -> None:
