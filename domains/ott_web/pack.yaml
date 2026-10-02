@@ -39,6 +39,18 @@ tag_map:
   drm: US-12
   progress: US-13
 
+# Tier 1 (BM25 over case title + steps + expected result). Measured on this
+# dataset on 2026-10-02:
+#   - lowest top score of any covered requirement: 9.50, so gap_threshold stays
+#     below it even before the "no ref" rule applies (catches 1 of 9 gaps);
+#   - orphan cases score 7.64-8.39 against their best requirement, the lowest
+#     non-orphan without ref or tag scores 11.23.
+# Retrieval recall@3 was 43/43 covered requirements, so top_k 5 leaves margin.
+tier1:
+  top_k: 5
+  gap_threshold: 9.0
+  orphan_threshold: 10.0
+
 # Phrase -> canonical term, applied to spec and suite text before matching.
 # The spec says "on demand" where the suite says "VOD".
 glossary:

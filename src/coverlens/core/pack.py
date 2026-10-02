@@ -49,6 +49,14 @@ class SuiteConfig(_Config):
         return self
 
 
+class Tier1Config(_Config):
+    """Tier 1 thresholds. BM25 scores depend on the corpus, so they are per pack."""
+
+    top_k: int = Field(ge=1)
+    gap_threshold: float = Field(ge=0)  # tau_gap
+    orphan_threshold: float = Field(ge=0)  # tau_orphan
+
+
 def _lowercase(terms: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(term.lower() for term in terms)
 
@@ -57,6 +65,7 @@ class PackConfig(_Config):
     name: str
     suite: SuiteConfig
     tag_map: dict[str, str] = {}
+    tier1: Tier1Config
     glossary: dict[str, str] = {}  # phrase -> canonical term, for matching
     forbidden_core_terms: Annotated[
         tuple[str, ...], Field(min_length=1), AfterValidator(_lowercase)

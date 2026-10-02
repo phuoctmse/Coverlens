@@ -28,6 +28,7 @@ def minimal_pack() -> dict[str, Any]:
             "dimensions": ["Axis A", "Axis B"],
         },
         "tag_map": {"login": "S-01"},
+        "tier1": {"top_k": 3, "gap_threshold": 1.0, "orphan_threshold": 1.0},
         "forbidden_core_terms": ["Widget"],
     }
 
@@ -146,3 +147,8 @@ def test_ott_glossary_maps_spec_wording_to_suite_wording(ott_pack: PackConfig) -
     tokenize = Tokenizer(ott_pack.glossary)
     assert "vod" in tokenize("Search covers on-demand titles")
     assert tokenize("On demand") == tokenize("VOD")
+
+
+def test_ott_tier1_thresholds_are_loaded(ott_pack: PackConfig) -> None:
+    assert ott_pack.tier1.top_k == 5
+    assert ott_pack.tier1.gap_threshold < ott_pack.tier1.orphan_threshold
