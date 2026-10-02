@@ -7,7 +7,7 @@ argument-hint: "[focus area]"
 
 # Next milestone
 
-Plan the next **milestone**: the smallest step that leaves the repo with one more passing test and moves phase 1 closer to `coverlens run ... --fake` working end to end. The user writes the code; you supply the plan and the concept.
+Plan the next **milestone**: the smallest step that leaves the repo with one more passing test and moves phase 1 closer to `coverlens run ... --fake` working end to end. Write the plan, then implement it once the user approves.
 
 ## Steps
 
@@ -29,11 +29,8 @@ Plan the next **milestone**: the smallest step that leaves the repo with one mor
 ## Plan
 
 - **Goal**: one sentence.
-- **Concept**: the Python idea this milestone teaches, explained in a short paragraph, with a pointer to the official docs page.
 - **Files**: paths to create or change.
-- **Test first**: each test as name + arrange / act / assert in words. Describe tests in prose; code comes from the user.
-- **Done when**: the specific tests pass and `ruff check` is clean.
+- **Test first**: each test as name + arrange / act / assert, in one line each.
+- **Done when**: the specific tests pass and `ruff check` and `ruff format --check` are clean.
 - **Rules in play**: the `CLAUDE.md` project rules this milestone touches, by name.
 - **Commit message**: one line.
-
-The user asks for a skeleton or full answer when they want one, per the ladder in `CLAUDE.md`.

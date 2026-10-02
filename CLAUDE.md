@@ -8,7 +8,7 @@ Current scope: PHASE 1 only — run end to end on the OTT web domain (`domains/o
 
 ## How we work in this repo
 
-- The user writes the code themselves to relearn Python. Claude acts as a mentor: explain the concept, give a skeleton or hints, then review the user's files. Escalate hint → skeleton → full answer only when the user asks. Do not write implementation files unless explicitly asked.
+- Claude writes the code (implementation and tests) directly.
 - Chat with the user in Vietnamese. Everything in the repo (code, identifiers, comments, docs, data) is in English.
 - Work in small milestones; each ends with a passing test and a commit.
 
