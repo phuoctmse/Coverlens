@@ -1,7 +1,7 @@
 [project]
 name = "coverlens"
 version = "0.1.0"
-description = "Add your description here"
+description = "Measures whether a test suite covers the requirements of a new feature and reports the gaps."
 readme = "README.md"
 authors = [
     { name = "phuoctmse", email = "phuoctmse184067@fpt.edu.vn" }
@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-coverlens = "coverlens:main"
+coverlens = "coverlens.cli:main"
 
 [build-system]
 requires = ["hatchling"]
