@@ -18,7 +18,7 @@
             "type": "command",
             "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/commit_gate.py\"",
             "timeout": 300,
-            "statusMessage": "Running ruff + pytest before commit..."
+            "statusMessage": "Commit gate"
           }
         ]
       }
