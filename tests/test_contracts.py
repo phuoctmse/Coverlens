@@ -1,5 +1,6 @@
 """Repo-wide rules from CLAUDE.md, enforced as tests."""
 
+import ast
 import hashlib
 import re
 from pathlib import Path
@@ -68,3 +69,20 @@ def test_core_has_no_domain_words() -> None:
             if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
                 hits.append(f"{file.relative_to(ROOT)}: {term}")
     assert hits == [], f"domain words in core: {hits}"
+
+
+ALLOWED_PROTOCOLS = {"InputAdapter", "Verifier", "OutputWriter"}
+
+
+def test_only_the_three_extension_points_are_protocols() -> None:
+    protocols: list[str] = []
+    for file in python_files(PACKAGE_DIR):
+        tree = ast.parse(file.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef) and any(
+                ast.unparse(base).split("[")[0].endswith("Protocol")
+                for base in node.bases
+            ):
+                protocols.append(node.name)
+    assert set(protocols) <= ALLOWED_PROTOCOLS, f"extra protocols: {protocols}"
+    assert len(protocols) == len(set(protocols)), f"duplicates: {protocols}"
