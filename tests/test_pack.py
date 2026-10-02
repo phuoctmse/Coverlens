@@ -6,6 +6,7 @@ import openpyxl
 import pytest
 import yaml
 
+from coverlens.core.bm25 import Tokenizer
 from coverlens.core.pack import PackConfig, PackError, load_pack
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -48,6 +49,7 @@ def test_minimal_pack_loads_with_defaults(tmp_path: Path) -> None:
     assert pack.suite.columns.refs is None
     assert pack.suite.list_separator == ","
     assert pack.suite.dimensions == ("Axis A", "Axis B")
+    assert pack.glossary == {}
 
 
 def test_forbidden_terms_are_lowercased(tmp_path: Path) -> None:
@@ -138,3 +140,9 @@ def test_tag_map_points_at_stories_in_spec(ott_pack: PackConfig) -> None:
     stories = set(re.findall(r"^## (US-\d+)\b", spec, re.MULTILINE))
     assert set(ott_pack.tag_map.values()) <= stories
     assert len(ott_pack.tag_map) == len(stories)
+
+
+def test_ott_glossary_maps_spec_wording_to_suite_wording(ott_pack: PackConfig) -> None:
+    tokenize = Tokenizer(ott_pack.glossary)
+    assert "vod" in tokenize("Search covers on-demand titles")
+    assert tokenize("On demand") == tokenize("VOD")

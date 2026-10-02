@@ -39,6 +39,12 @@ tag_map:
   drm: US-12
   progress: US-13
 
+# Phrase -> canonical term, applied to spec and suite text before matching.
+# The spec says "on demand" where the suite says "VOD".
+glossary:
+  on demand: vod
+  video on demand: vod
+
 # Words that must never appear in src/coverlens/core/ (enforced by a contract test).
 # Generic English words that core may legitimately use (live, edge, stream) are left out.
 forbidden_core_terms:

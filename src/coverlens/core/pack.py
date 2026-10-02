@@ -57,6 +57,7 @@ class PackConfig(_Config):
     name: str
     suite: SuiteConfig
     tag_map: dict[str, str] = {}
+    glossary: dict[str, str] = {}  # phrase -> canonical term, for matching
     forbidden_core_terms: Annotated[
         tuple[str, ...], Field(min_length=1), AfterValidator(_lowercase)
     ]
