@@ -70,3 +70,11 @@ class Verdict(_Model):
         if len(set(cited)) != len(cited):
             raise ValueError(f"duplicate case IDs cited: {cited}")
         return self
+
+
+class CoverageResult(_Model):
+    """What the cascade concluded, before it is shaped into a report."""
+
+    verdicts: tuple[Verdict, ...]  # one per requirement, in spec order
+    orphan_case_ids: tuple[Id, ...]
+    candidate_ids: dict[str, tuple[str, ...]]  # requirement ID -> cases shown

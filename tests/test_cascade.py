@@ -5,8 +5,8 @@ import pytest
 
 from coverlens.adapters.markdown_spec import MarkdownSpecAdapter
 from coverlens.adapters.xlsx_suite import XlsxSuiteAdapter
-from coverlens.core.cascade import CoverageResult, run_cascade
-from coverlens.core.models import Case, Requirement, Status, Verdict
+from coverlens.core.cascade import run_cascade
+from coverlens.core.models import Case, CoverageResult, Requirement, Status, Verdict
 from coverlens.core.pack import PackConfig, load_pack
 from coverlens.verifiers.fake import FakeVerifier
 from coverlens.verifiers.noop import NoopVerifier

@@ -2,21 +2,17 @@
 
 from collections.abc import Sequence
 
-from pydantic import BaseModel, ConfigDict
-
 from coverlens.core.bm25 import Tokenizer
-from coverlens.core.models import Case, Requirement, Status, Verdict
+from coverlens.core.models import (
+    Case,
+    CoverageResult,
+    Requirement,
+    Status,
+    Verdict,
+)
 from coverlens.core.pack import PackConfig
 from coverlens.core.protocols import Verifier
 from coverlens.core.tier1 import screen
-
-
-class CoverageResult(BaseModel):
-    model_config = ConfigDict(frozen=True)
-
-    verdicts: tuple[Verdict, ...]  # one per requirement, in spec order
-    orphan_case_ids: tuple[str, ...]
-    candidate_ids: dict[str, tuple[str, ...]]  # requirement ID -> cases shown
 
 
 def _uncertain(requirement_id: str, tier: int, reason: str) -> Verdict:

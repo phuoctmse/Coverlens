@@ -6,6 +6,7 @@ from typing import Protocol, runtime_checkable
 
 from coverlens.core.models import Case, Requirement, Verdict
 from coverlens.core.pack import PackConfig
+from coverlens.core.report import Report
 
 
 @runtime_checkable
@@ -25,3 +26,10 @@ class Verifier(Protocol):
     def judge(
         self, requirement: Requirement, candidates: Sequence[Case]
     ) -> Verdict | None: ...
+
+
+@runtime_checkable
+class OutputWriter(Protocol):
+    """Writes a finished report into a directory; returns the file written."""
+
+    def write(self, report: Report, out_dir: Path) -> Path: ...
