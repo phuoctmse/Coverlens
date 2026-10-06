@@ -1,0 +1,32 @@
+# Human review of answer-key labels. Only requirements where the pipeline and
+# the key disagree are reviewed (list them with `python -m eval --disagreements`).
+# data/ stays read-only; eval applies these decisions on top of the key.
+reviews:
+  - requirement_id: US-06.AC3
+    key_label: gap
+    reviewed_label: gap
+    covered_by: []
+    note: TC-026 only selects a quality and TC-041 is about the stream limit; nothing checks that qualities above the plan are disabled.
+    reviewer: phuoctmse
+    date: 2026-10-07
+  - requirement_id: US-10.AC4
+    key_label: gap
+    reviewed_label: gap
+    covered_by: []
+    note: TC-040 only reaches the limit on separate browsers; no case checks that a stream above the limit on another browser is blocked.
+    reviewer: phuoctmse
+    date: 2026-10-07
+  - requirement_id: US-11.AC3
+    key_label: covered
+    reviewed_label: covered
+    covered_by: [TC-046]
+    note: TC-046 matches the criterion almost word for word; the judge was too strict.
+    reviewer: phuoctmse
+    date: 2026-10-07
+  - requirement_id: US-11.AC4
+    key_label: gap
+    reviewed_label: gap
+    covered_by: []
+    note: TC-046 is a network loss, not a failed license request, and checks no error code; the judge was too lenient.
+    reviewer: phuoctmse
+    date: 2026-10-07

@@ -50,3 +50,20 @@ Decisions:
   what it does with an overlong prompt.
 - `keep_alive` 30m instead of Ollama's default 5m: a reload measured 4.7-7.9 s,
   paid again whenever two runs are more than 5 minutes apart.
+
+## C4 (label review of disagreements)
+
+With Tier 2 and `judge-v1`, the pipeline disagreed with the key on 4 of 52
+requirements. The user reviewed all 4 on 2026-10-07 (`eval/label_review.yaml`)
+and confirmed the key every time, so all 4 are judge errors:
+
+| Requirement | Key | Judge | Error type |
+|---|---|---|---|
+| US-06.AC3 | gap | covered | too lenient: same menu, different check |
+| US-10.AC4 | gap | covered | too lenient: reaches the limit, never exceeds it |
+| US-11.AC3 | covered | gap | too strict: near-verbatim case rejected |
+| US-11.AC4 | gap | covered | too lenient: network loss taken for a license failure |
+
+The reviewed key equals the raw key, so 48/52 (92%) stands. Three of the four
+remaining errors are lenient ones, which hide real gaps; that is the error to
+target next (C2 checklist judging, or a stronger model).
