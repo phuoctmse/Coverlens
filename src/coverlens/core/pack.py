@@ -58,6 +58,12 @@ class Tier1Config(_Config):
     orphan_threshold: float = Field(ge=0)  # tau_orphan
 
 
+class Tier2Config(_Config):
+    """Tier 2 overlap rule: share of a criterion's terms a case must contain."""
+
+    min_overlap: float = Field(gt=0, le=1)
+
+
 class Constraint(_Config):
     """When every `if` dimension has its value, each `then` dimension must take
     one of the listed values. Combinations breaking it cannot occur."""
@@ -106,6 +112,7 @@ class PackConfig(_Config):
     suite: SuiteConfig
     tag_map: dict[str, str] = {}
     tier1: Tier1Config
+    tier2: Tier2Config | None = None  # None: Tier 2 passes everything on
     glossary: dict[str, str] = {}  # phrase -> canonical term, for matching
     forbidden_core_terms: Annotated[
         tuple[str, ...], Field(min_length=1), AfterValidator(_lowercase)

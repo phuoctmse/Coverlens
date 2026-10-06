@@ -22,6 +22,7 @@ from coverlens.verifiers.ollama import (
     OllamaTransport,
     OllamaVerifier,
 )
+from coverlens.verifiers.overlap import OverlapVerifier
 
 INPUT_ERRORS = (PackError, SpecError, SuiteError)
 DEFAULT_CACHE_DIR = Path(".coverlens_cache")
@@ -92,7 +93,12 @@ def analyze(
     requirements = MarkdownSpecAdapter().read(spec, pack)
     cases: list[Case] = XlsxSuiteAdapter().read(suite, pack) if suite else []
     tier3, client = _tier3(judge, pack)
-    result = run_cascade(requirements, cases, pack, [NoopVerifier(), tier3])
+    tier2: Verifier = (
+        OverlapVerifier(pack.tier2.min_overlap, pack.glossary)
+        if pack.tier2
+        else NoopVerifier()
+    )
+    result = run_cascade(requirements, cases, pack, [tier2, tier3])
     pairwise = measure(pack.pairwise, cases) if pack.pairwise and cases else None
     report = build_report(requirements, cases, result, pack.name, pairwise)
     if client is None:

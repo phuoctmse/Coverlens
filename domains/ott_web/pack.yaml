@@ -51,6 +51,12 @@ tier1:
   gap_threshold: 9.0
   orphan_threshold: 10.0
 
+# Tier 2: a case containing at least this share of a criterion's terms covers
+# it, with no LLM call. 0.75 was the fake judge's threshold before any
+# measurement; on the dev set its "covered" calls were 25/25 right.
+tier2:
+  min_overlap: 0.75
+
 # Phrase -> canonical term, applied to spec and suite text before matching.
 # The spec says "on demand" where the suite says "VOD".
 glossary:

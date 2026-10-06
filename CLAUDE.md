@@ -16,7 +16,7 @@ Current scope: PHASE 1 only — run end to end on the OTT web domain (`domains/o
 
 - Core is domain-agnostic. Everything domain-specific (dimensions, constraints, glossary, Excel column mapping) lives in a YAML domain pack. Code in `src/coverlens/core/` must never contain domain words (e.g. region, DRM, browser, entitlement); a contract test enforces this.
 - Exactly three extension points, as `typing.Protocol`: `InputAdapter`, `Verifier` (backend), `OutputWriter`.
-- Verifier cascade: Tier 1 is algorithmic (ID/tag match + BM25, top-k) and may only conclude "certain gap" or "orphan case", never "covered". Tier 2 is an empty hook for now. Tier 3 is an LLM judge with forced structured output.
+- Verifier cascade: Tier 1 is algorithmic (ID/tag match + BM25, top-k) and may only conclude "certain gap" or "orphan case", never "covered". Tier 2 is a rule-based overlap judge that may only conclude "covered" (threshold in the pack; it never concludes "gap"). Tier 3 is an LLM judge with forced structured output.
 - The LLM backend is a local Llama model via Ollama (no paid API). Every LLM call is cached by hash of (model, model digest, system prompt, prompt, options, output schema, template version); rerunning unchanged input must make 0 calls.
 - Every "covered" verdict must cite at least one case ID.
 - `FakeVerifier` keeps the whole test suite offline.
@@ -37,7 +37,7 @@ Current scope: PHASE 1 only — run end to end on the OTT web domain (`domains/o
   - everything else → top-k candidates for the next tier.
 - Thresholds and the tag → story map live in the domain pack. Tags only add candidates; they are never evidence of coverage.
 - Canary: Tier 1 must produce 0 false "certain gap" verdicts on the eval set.
-- Tier 2 and Tier 3 both implement `Verifier`; `judge()` returns `Verdict | None`, where `None` passes to the next tier. Tier 2 is a no-op verifier for now. A cascade orchestrator in core runs Tier 1, then the verifiers in order.
+- Tier 2 and Tier 3 both implement `Verifier`; `judge()` returns `Verdict | None`, where `None` passes to the next tier. Tier 2 is the overlap rule (phase 2, B1); a pack without `tier2` falls back to a no-op verifier. A cascade orchestrator in core runs Tier 1, then the verifiers in order.
 - The LLM judge sees case content only (title, preconditions, steps, expected result), never the requirement ref.
 - The report separates orphan cases (claim nothing, cover nothing) from mis-referenced cases (reference an AC but do not cover it).
 - Pairwise coverage only measures, it never outputs test cases: pack dimension values + constraints define the required value pairs (enumerated exactly; allpairspy with a constraint filter was found to miss valid pairs), and the "Coverage" sheet reports which pairs the suite exercises plus allpairspy's estimate of how many more combinations would cover the rest.
