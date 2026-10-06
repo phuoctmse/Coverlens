@@ -11,7 +11,9 @@ from collections.abc import Sequence
 from functools import partial
 from pathlib import Path
 
+from coverlens.adapters.xlsx_suite import XlsxSuiteAdapter
 from coverlens.cli import positive_int
+from coverlens.core.pack import load_pack
 from coverlens.core.report import Report
 from coverlens.pipeline import (
     DEFAULT_CACHE_DIR,
@@ -40,6 +42,13 @@ from eval.bootstrap import (
     recall,
     save_outcomes,
 )
+from eval.disagreements import format_disagreements
+from eval.label_review import (
+    DEFAULT_REVIEWS,
+    apply_reviews,
+    changed_count,
+    load_reviews,
+)
 from eval.metrics import evaluate, format_result
 
 DEFAULT_PACK = DATA_DIR.parents[1] / "domains" / "ott_web" / "pack.yaml"
@@ -60,6 +69,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--save", type=Path, help="store this run for --compare")
     parser.add_argument("--compare", type=Path, help="a run saved with --save")
+    parser.add_argument(
+        "--reviews", type=Path, default=DEFAULT_REVIEWS, help="human label review"
+    )
+    parser.add_argument(
+        "--disagreements",
+        action="store_true",
+        help="list where the pipeline and the key disagree, for review",
+    )
     return parser
 
 
@@ -131,6 +148,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = evaluate(analysis.report, key)
         outcomes = outcomes_of(analysis.report, key)
         comparison = compare(base, outcomes) if base is not None else None
+        reviews = load_reviews(args.reviews, key)
+        cases = (
+            {
+                c.id: c
+                for c in XlsxSuiteAdapter().read(args.suite, load_pack(args.domain))
+            }
+            if args.disagreements
+            else {}
+        )
     except (*INPUT_ERRORS, JudgeUnavailableError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
@@ -138,6 +164,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(format_intervals(outcomes))
     if comparison is not None and args.compare is not None:
         print(format_comparison(comparison, args.compare))
+    changed = changed_count(reviews)
+    if changed:
+        reviewed = outcomes_of(analysis.report, apply_reviews(key, reviews))
+        plural = "" if changed == 1 else "s"
+        print(f"Against the reviewed key ({changed} label{plural} changed):")
+        print(format_intervals(reviewed))
+    if args.disagreements:
+        by_id = {r.requirement_id: r for r in reviews}
+        print(format_disagreements(analysis.report, key, cases, by_id))
     if not args.fake:
         print(analysis.cost_line())
     if args.save:
