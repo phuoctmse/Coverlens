@@ -43,7 +43,10 @@ input makes no LLM calls; the run prints how many calls it made.
     (covered / gap / uncertain), the deciding tier, cited cases, candidates and
     rationale.
   - **Coverage**: summary, per-story rollup, orphan cases (claim and cover
-    nothing) and mis-referenced cases (claim a criterion they do not cover).
+    nothing), mis-referenced cases (claim a criterion they do not cover) and,
+    when the pack declares `pairwise`, dimension pair coverage: which value
+    pairs (e.g. Browser x Network) the suite exercises, the missing pairs, and
+    how many more combinations would cover them.
 - `out/coverage_report.json`: the same report as JSON.
 
 ## How it decides

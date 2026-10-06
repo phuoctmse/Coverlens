@@ -9,6 +9,7 @@ from coverlens.cache.llm_cache import CachedClient, DiskCache
 from coverlens.core.cascade import run_cascade
 from coverlens.core.models import Case
 from coverlens.core.pack import PackConfig, PackError, load_pack
+from coverlens.core.pairwise import measure
 from coverlens.core.protocols import Verifier
 from coverlens.core.report import Report, build_report
 from coverlens.verifiers.fake import FakeVerifier
@@ -71,7 +72,8 @@ def analyze(
     cases: list[Case] = XlsxSuiteAdapter().read(suite, pack) if suite else []
     tier3, client = _tier3(judge, pack)
     result = run_cascade(requirements, cases, pack, [NoopVerifier(), tier3])
-    report = build_report(requirements, cases, result, pack.name)
+    pairwise = measure(pack.pairwise, cases) if pack.pairwise and cases else None
+    report = build_report(requirements, cases, result, pack.name, pairwise)
     if client is None:
         return Analysis(report)
     return Analysis(report, llm_calls=client.calls, cache_hits=client.hits)

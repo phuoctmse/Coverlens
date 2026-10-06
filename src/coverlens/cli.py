@@ -88,6 +88,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         f", uncertain {s.uncertain}, orphans {len(report.orphan_case_ids)}"
         f", mis-referenced {len(report.mis_referenced)}"
     )
+    if report.pairwise is not None:
+        pw = report.pairwise
+        print(
+            f"Dimension pairs {pw.covered}/{pw.required} ({pw.coverage:.0%}),"
+            f" {pw.extra_combinations} more combinations would cover the rest"
+        )
     if not args.fake:
         print(f"LLM calls {analysis.llm_calls}, cache hits {analysis.cache_hits}")
     return 0

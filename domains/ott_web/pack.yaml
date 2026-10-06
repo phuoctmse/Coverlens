@@ -57,6 +57,30 @@ glossary:
   on demand: vod
   video on demand: vod
 
+# Pairwise coverage: every value each dimension can take, and the combinations
+# that cannot occur. Constraints come from the spec (US-12: which DRM each
+# browser uses). Values are written exactly as in the suite.
+pairwise:
+  values:
+    Browser: [Chrome, Firefox, Safari, Edge, Other browser]
+    Protocol / DRM: [DASH+Widevine, HLS+FairPlay, DASH+PlayReady, None]
+    Region: [In region, Out of region]
+    User state: [Plan active, "Signed in, no plan", Signed out]
+    Content type: [VOD, Live]
+    Player state: [Loading, Playing, Paused, Buffering, Seeking, Ended]
+    Network: [Good, Slow, Unstable, Offline mid-play]
+  constraints:
+    - if: {Browser: Chrome}
+      then: {Protocol / DRM: [DASH+Widevine]}
+    - if: {Browser: Firefox}
+      then: {Protocol / DRM: [DASH+Widevine]}
+    - if: {Browser: Safari}
+      then: {Protocol / DRM: [HLS+FairPlay]}
+    - if: {Browser: Edge}
+      then: {Protocol / DRM: [DASH+PlayReady]}
+    - if: {Browser: Other browser}
+      then: {Protocol / DRM: ["None"]}
+
 # Words that must never appear in src/coverlens/core/ (enforced by a contract test).
 # Generic English words that core may legitimately use (live, edge, stream) are left out.
 forbidden_core_terms:

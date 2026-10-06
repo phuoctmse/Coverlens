@@ -10,6 +10,7 @@ from enum import StrEnum
 from pydantic import BaseModel, ConfigDict
 
 from coverlens.core.models import Case, CoverageResult, Requirement, Status
+from coverlens.core.pairwise import PairwiseResult
 
 
 class _Frozen(BaseModel):
@@ -66,6 +67,7 @@ class Report(_Frozen):
     stories: tuple[StoryRollup, ...]
     orphan_case_ids: tuple[str, ...]
     mis_referenced: tuple[MisReference, ...]
+    pairwise: PairwiseResult | None = None  # None when the pack has no pairwise
 
 
 def _rollup(rows: Sequence[RequirementRow]) -> tuple[StoryRollup, ...]:
@@ -119,6 +121,7 @@ def build_report(
     cases: Sequence[Case],
     result: CoverageResult,
     pack_name: str,
+    pairwise: PairwiseResult | None = None,
 ) -> Report:
     verdicts = {v.requirement_id: v for v in result.verdicts}
     rows = tuple(
@@ -152,4 +155,5 @@ def build_report(
         mis_referenced=_mis_referenced(
             cases, {row.requirement_id: row.status for row in rows}
         ),
+        pairwise=pairwise,
     )

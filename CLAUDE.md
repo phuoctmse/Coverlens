@@ -40,7 +40,7 @@ Current scope: PHASE 1 only — run end to end on the OTT web domain (`domains/o
 - Tier 2 and Tier 3 both implement `Verifier`; `judge()` returns `Verdict | None`, where `None` passes to the next tier. Tier 2 is a no-op verifier for now. A cascade orchestrator in core runs Tier 1, then the verifiers in order.
 - The LLM judge sees case content only (title, preconditions, steps, expected result), never the requirement ref.
 - The report separates orphan cases (claim nothing, cover nothing) from mis-referenced cases (reference an AC but do not cover it).
-- allpairspy is used only to measure: pack dimensions + constraints define the required value pairs, and the "Coverage" sheet reports which pairs the suite exercises, next to the per-story rollup. It never outputs test cases. Built last in phase 1.
+- Pairwise coverage only measures, it never outputs test cases: pack dimension values + constraints define the required value pairs (enumerated exactly; allpairspy with a constraint filter was found to miss valid pairs), and the "Coverage" sheet reports which pairs the suite exercises plus allpairspy's estimate of how many more combinations would cover the rest.
 
 ## Layout
 

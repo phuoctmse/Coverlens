@@ -10,6 +10,10 @@ from openpyxl.worksheet.worksheet import Worksheet
 from coverlens.core.report import Report
 
 FILE_NAME = "coverage_report.xlsx"
+PAIR_NOTE = (
+    "Dimension columns record the environment a case runs in, "
+    "which is not always what the case checks."
+)
 
 BOLD = Font(bold=True)
 WRAP = Alignment(wrap_text=True, vertical="top")
@@ -116,6 +120,28 @@ def _write_coverage(sheet: Worksheet, report: Report) -> None:
         sheet.append([item.case_id, item.requirement_id, item.reason])
     if not report.mis_referenced:
         sheet.append(["(none)"])
+
+    pairwise = report.pairwise
+    if pairwise is not None:
+        _heading(sheet, "Dimension pairs")
+        for label, value in (
+            ("Required pairs", pairwise.required),
+            ("Covered pairs", pairwise.covered),
+            ("Pair coverage", f"{pairwise.coverage:.0%}"),
+            ("More combinations needed", pairwise.extra_combinations),
+            ("Unknown values", ", ".join(pairwise.unknown_values) or "(none)"),
+            ("Note", PAIR_NOTE),
+        ):
+            sheet.append([label, value])
+        _heading(
+            sheet, "Missing pairs", ("Dimension A", "Value A", "Dimension B", "Value B")
+        )
+        for pair in pairwise.missing:
+            sheet.append(
+                [pair.dimension_a, pair.value_a, pair.dimension_b, pair.value_b]
+            )
+        if not pairwise.missing:
+            sheet.append(["(none)"])
 
     for letter, width in zip("ABCDEF", (22, 20, 50, 10, 10, 10), strict=True):
         sheet.column_dimensions[letter].width = width

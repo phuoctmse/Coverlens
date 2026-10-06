@@ -143,3 +143,26 @@ def test_ott_offline_report_is_written(tmp_path: Path) -> None:
     assert len(sheet_rows(tmp_path / "coverage_report.xlsx", "Gap report")) == 53
     mis_referenced = {m.case_id for m in report.mis_referenced}
     assert "TC-017" in mis_referenced  # claims US-04.AC3, which nothing covers
+
+
+def test_coverage_sheet_lists_dimension_pairs_when_measured(tmp_path: Path) -> None:
+    from coverlens.core.pairwise import Pair, PairwiseResult
+
+    missing = Pair(dimension_a="OS", value_a="mac", dimension_b="App", value_b="web")
+    report = sample_report().model_copy(
+        update={
+            "pairwise": PairwiseResult(
+                required=4,
+                covered=3,
+                coverage=0.75,
+                missing=(missing,),
+                unknown_values=("OS=linux",),
+                extra_combinations=1,
+            )
+        }
+    )
+    rows = sheet_rows(ExcelWriter().write(report, tmp_path), "Coverage")
+    cells = [cell for row in rows for cell in row if cell is not None]
+    for expected in ("Dimension pairs", "75%", "Missing pairs", "mac", "OS=linux"):
+        assert expected in cells, expected
+    assert ("OS", "mac", "App", "web") in [row[:4] for row in rows]
