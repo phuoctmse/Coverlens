@@ -2,4 +2,5 @@
 out/
 __pycache__/
 .ruff_cache/
-.pytest_cache/.coverlens_cache/
+.pytest_cache/
+.coverlens_cache/
