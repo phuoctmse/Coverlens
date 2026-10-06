@@ -33,3 +33,20 @@ The canary passed and no verdict was UNCERTAIN in every run.
 Keep judge-v1. Further wording changes on this model and this small set risk
 fitting the eval set rather than improving the judge. Next experiment:
 majority voting over several samples to damp the run-to-run flips.
+
+## Majority voting (2026-10-06)
+
+judge-v1 with three votes per requirement: vote 1 is the greedy request
+(temperature 0, served from the cache), votes 2-3 sample at temperature 0.7
+with their own seeds; the majority decides. Code on branch `experiment-votes`.
+
+| Run | Correct / 52 | Gap P | Gap R | Covered P | Covered R | LLM calls |
+|---|---|---|---|---|---|---|
+| 1 vote | 46 | 6/9 | 6/9 | 40/43 | 40/43 | 51 |
+| 3 votes | 46 | 6/9 | 6/9 | 40/43 | 40/43 | 153 |
+
+48 of 51 judged requirements were unanimous, and 5 of the 6 errors were
+3-of-3. The model's mistakes are systematic, not sampling noise: it flips with
+prompt wording, not with the seed. Voting triples the cost for no gain, so it
+is not merged. Remaining levers: one call per (criterion, case) pair, or a
+stronger model.
