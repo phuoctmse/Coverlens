@@ -81,9 +81,14 @@ an eval run where relevant, and a commit.
   milestone updates that line and the design decisions.
 - **Files:** `verifiers/overlap.py`, `verifiers/fake.py`, `core/pack.py`,
   `domains/ott_web/pack.yaml`, `pipeline.py`, `CLAUDE.md`, tests.
-- **Done when:** Tier 2 never returns GAP (test); eval with the LLM shows
-  accuracy at least 48/52 with the A2 comparison against the baseline, Tier 2
-  covered precision 100% on the dev set, canary PASS, LLM calls at most 26.
+- **Done when:** Tier 2 never returns GAP (test); against the saved baseline,
+  `--compare` reports no loss and no requirement broken; Tier 2 covered
+  precision 100% on the dev set; canary PASS; LLM calls at most 26.
+- **Why not "a proven quality gain":** A2 put the baseline accuracy at 88%
+  with a 95% interval of [79%, 96%]. On 52 requirements a gain of 2 with none
+  broken stays inside paired-bootstrap noise, so quality is held to "no loss"
+  and the proven gain is the cost cut. Proving small quality gains needs the
+  larger C3 set.
 - **Risk:** the threshold could fit this small dataset. Mitigation: it was
   fixed before the measurement; re-check on the C3 data when it exists.
 - **Cost:** low. No new dependency.
@@ -135,7 +140,7 @@ an eval run where relevant, and a commit.
 
 | Metric | Baseline | Target |
 |---|---|---|
-| Correct verdicts | 46 / 52 | at least 48 / 52, gain shown outside noise |
+| Correct verdicts | 46 / 52 | no loss and nothing broken (`--compare`); small gains need C3 to prove |
 | Canary | PASS | PASS |
 | LLM calls, first run | 51 | at most 26 |
 | Cost visibility | calls only | calls, tokens, seconds |
