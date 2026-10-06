@@ -24,6 +24,18 @@ uv run coverlens run \
 `--fake` uses an offline word-overlap judge instead of the LLM. Without
 `--suite`, every requirement is reported as a gap.
 
+To use the LLM judge, run Ollama locally, pull the model once and drop `--fake`:
+
+```
+ollama pull llama3.1:8b
+uv run coverlens run --domain ... --spec ... --suite ... --out out/
+```
+
+Options: `--model` (default `llama3.1:8b`), `--ollama-url` (default
+`http://localhost:11434`), `--cache-dir` (default `.coverlens_cache/`). Every
+LLM reply is cached by a hash of the full request, so rerunning unchanged
+input makes no LLM calls; the run prints how many calls it made.
+
 ## Output
 
 - `out/coverage_report.xlsx`

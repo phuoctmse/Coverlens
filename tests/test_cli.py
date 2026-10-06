@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from conftest import FakeOllamaServer
 
 from coverlens.cli import main
 
@@ -49,12 +50,71 @@ def test_without_a_suite_every_requirement_is_a_gap(tmp_path: Path) -> None:
     assert (summary["cases"], summary["gap"], summary["covered"]) == (0, 52, 0)
 
 
-def test_llm_run_is_not_available_yet(
+def test_unreachable_ollama_exits_1(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    assert run("--domain", PACK, "--spec", SPEC, "--out", str(tmp_path)) == 1
-    assert "--fake" in capsys.readouterr().err
+    code = run(
+        "--domain",
+        PACK,
+        "--spec",
+        SPEC,
+        "--out",
+        str(tmp_path),
+        "--ollama-url",
+        "http://127.0.0.1:9",
+    )
+    assert code == 1
+    err = capsys.readouterr().err
+    assert "cannot reach Ollama" in err
+    assert "--fake" in err
     assert not (tmp_path / "coverage_report.json").exists()
+
+
+def test_missing_model_says_how_to_pull_it(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], fake_ollama: FakeOllamaServer
+) -> None:
+    code = run(
+        "--domain",
+        PACK,
+        "--spec",
+        SPEC,
+        "--out",
+        str(tmp_path),
+        "--ollama-url",
+        fake_ollama.url,
+        "--model",
+        "llama3.2:3b",
+    )
+    assert code == 1
+    assert "ollama pull llama3.2:3b" in capsys.readouterr().err
+
+
+def test_llm_run_rerun_makes_zero_calls(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], fake_ollama: FakeOllamaServer
+) -> None:
+    args = (
+        "--domain",
+        PACK,
+        "--spec",
+        SPEC,
+        "--suite",
+        SUITE,
+        "--out",
+        str(tmp_path / "out"),
+        "--cache-dir",
+        str(tmp_path / "cache"),
+        "--ollama-url",
+        fake_ollama.url,
+    )
+    assert run(*args) == 0
+    first = capsys.readouterr().out
+    calls = len(fake_ollama.seen)
+    assert calls > 0
+    assert f"LLM calls {calls}, cache hits 0" in first
+
+    assert run(*args) == 0
+    assert "LLM calls 0," in capsys.readouterr().out
+    assert len(fake_ollama.seen) == calls
 
 
 @pytest.mark.parametrize(

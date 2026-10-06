@@ -134,8 +134,10 @@ def test_ott_fake_eval_passes_the_canary(capsys: pytest.CaptureFixture[str]) -> 
     assert "43/43" in out  # candidate recall
 
 
-def test_eval_without_fake_exits_1(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main([]) == 1
+def test_eval_without_a_reachable_ollama_exits_1(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    assert main(["--ollama-url", "http://127.0.0.1:9"]) == 1
     assert "--fake" in capsys.readouterr().err
 
 

@@ -8,7 +8,14 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from coverlens.pipeline import INPUT_ERRORS, JudgeUnavailableError, analyze
+from coverlens.pipeline import (
+    DEFAULT_CACHE_DIR,
+    INPUT_ERRORS,
+    JudgeSettings,
+    JudgeUnavailableError,
+    analyze,
+)
+from coverlens.verifiers.ollama import DEFAULT_MODEL, DEFAULT_URL
 from eval.answer_key import DATA_DIR, DEFAULT_KEY, load_key
 from eval.metrics import evaluate, format_result
 
@@ -22,6 +29,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--suite", type=Path, default=DATA_DIR / "test_cases.xlsx")
     parser.add_argument("--key", type=Path, default=DEFAULT_KEY)
     parser.add_argument("--fake", action="store_true", help="offline fake judge")
+    parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument("--ollama-url", default=DEFAULT_URL)
+    parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
     return parser
 
 
@@ -29,12 +39,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         key = load_key(args.key)
-        report = analyze(args.domain, args.spec, args.suite, fake=args.fake)
-        result = evaluate(report, key)
+        judge = JudgeSettings(
+            fake=args.fake,
+            model=args.model,
+            ollama_url=args.ollama_url,
+            cache_dir=args.cache_dir,
+        )
+        analysis = analyze(args.domain, args.spec, args.suite, judge)
+        result = evaluate(analysis.report, key)
     except (*INPUT_ERRORS, JudgeUnavailableError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     print(format_result(result))
+    if not args.fake:
+        print(f"LLM calls {analysis.llm_calls}, cache hits {analysis.cache_hits}")
     return 0 if result.canary_ok else 1
 
 

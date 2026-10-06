@@ -5,8 +5,15 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from coverlens.core.report import Report
-from coverlens.pipeline import INPUT_ERRORS, JudgeUnavailableError, analyze
+from coverlens.pipeline import (
+    DEFAULT_CACHE_DIR,
+    INPUT_ERRORS,
+    Analysis,
+    JudgeSettings,
+    JudgeUnavailableError,
+    analyze,
+)
+from coverlens.verifiers.ollama import DEFAULT_MODEL, DEFAULT_URL
 from coverlens.writers.excel_writer import ExcelWriter
 from coverlens.writers.json_writer import JsonWriter
 
@@ -31,32 +38,48 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="use the offline fake judge instead of the LLM",
     )
+    run.add_argument("--model", default=DEFAULT_MODEL, help="Ollama model tag")
+    run.add_argument("--ollama-url", default=DEFAULT_URL, help="Ollama server URL")
+    run.add_argument(
+        "--cache-dir", type=Path, default=DEFAULT_CACHE_DIR, help="LLM cache folder"
+    )
     return parser
 
 
-def run_pipeline(args: argparse.Namespace) -> tuple[Report, list[Path]]:
+def judge_settings(args: argparse.Namespace) -> JudgeSettings:
+    return JudgeSettings(
+        fake=args.fake,
+        model=args.model,
+        ollama_url=args.ollama_url,
+        cache_dir=args.cache_dir,
+    )
+
+
+def run_pipeline(args: argparse.Namespace) -> tuple[Analysis, list[Path]]:
     try:
-        report = analyze(args.domain, args.spec, args.suite, fake=args.fake)
+        analysis = analyze(args.domain, args.spec, args.suite, judge_settings(args))
     except (*INPUT_ERRORS, JudgeUnavailableError) as exc:
         raise CliError(str(exc)) from exc
     try:
         written = [
-            writer.write(report, args.out) for writer in (ExcelWriter(), JsonWriter())
+            writer.write(analysis.report, args.out)
+            for writer in (ExcelWriter(), JsonWriter())
         ]
     except OSError as exc:
         raise CliError(
             f"cannot write the report to {args.out} (is the file open in Excel?): {exc}"
         ) from exc
-    return report, written
+    return analysis, written
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
-        report, written = run_pipeline(args)
+        analysis, written = run_pipeline(args)
     except CliError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
+    report = analysis.report
     s = report.summary
     for path in written:
         print(f"Wrote {path}")
@@ -65,4 +88,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         f", uncertain {s.uncertain}, orphans {len(report.orphan_case_ids)}"
         f", mis-referenced {len(report.mis_referenced)}"
     )
+    if not args.fake:
+        print(f"LLM calls {analysis.llm_calls}, cache hits {analysis.cache_hits}")
     return 0
