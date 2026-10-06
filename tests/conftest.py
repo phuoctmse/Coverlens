@@ -24,7 +24,10 @@ class FakeOllamaServer:
                     "content": json.dumps(
                         {"status": "gap", "cited_case_ids": [], "rationale": "no"}
                     )
-                }
+                },
+                "prompt_eval_count": 1200,
+                "eval_count": 45,
+                "total_duration": 2_500_000_000,
             }
         )
         handler = self._handler()

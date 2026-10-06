@@ -11,7 +11,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 KEY_FORMAT = "1"  # bump to invalidate every entry if the key recipe changes
 
@@ -35,7 +35,31 @@ class LlmRequest(BaseModel):
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
-Transport = Callable[[LlmRequest], str]
+class LlmUsage(BaseModel):
+    """What one or more LLM calls cost."""
+
+    model_config = ConfigDict(frozen=True)
+
+    prompt_tokens: int = 0
+    output_tokens: int = 0
+    seconds: float = 0.0
+
+    def __add__(self, other: LlmUsage) -> LlmUsage:
+        return LlmUsage(
+            prompt_tokens=self.prompt_tokens + other.prompt_tokens,
+            output_tokens=self.output_tokens + other.output_tokens,
+            seconds=self.seconds + other.seconds,
+        )
+
+
+class LlmReply(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    text: str
+    usage: LlmUsage = LlmUsage()
+
+
+Transport = Callable[[LlmRequest], LlmReply]
 
 
 class DiskCache:
@@ -48,23 +72,30 @@ class DiskCache:
         key = request.key()
         return self.directory / key[:2] / f"{key}.json"
 
-    def get(self, request: LlmRequest) -> str | None:
+    def get(self, request: LlmRequest) -> LlmReply | None:
         try:
             entry = json.loads(self.path_for(request).read_text(encoding="utf-8"))
         except OSError, ValueError:
             return None
         if not isinstance(entry, dict) or entry.get("key") != request.key():
             return None
-        response = entry.get("response")
-        return response if isinstance(response, str) else None
+        text = entry.get("response")
+        if not isinstance(text, str):
+            return None
+        try:
+            usage = LlmUsage.model_validate(entry.get("usage") or {})
+        except ValidationError:
+            usage = LlmUsage()
+        return LlmReply(text=text, usage=usage)
 
-    def put(self, request: LlmRequest, response: str) -> None:
+    def put(self, request: LlmRequest, reply: LlmReply) -> None:
         path = self.path_for(request)
         path.parent.mkdir(parents=True, exist_ok=True)
         entry = {
             "key": request.key(),
             "request": request.model_dump(mode="json"),
-            "response": response,
+            "response": reply.text,
+            "usage": reply.usage.model_dump(),
         }
         tmp = path.with_suffix(".tmp")
         tmp.write_text(
@@ -74,20 +105,28 @@ class DiskCache:
 
 
 class CachedClient:
-    """Sends requests through the cache; `calls` counts real transport calls."""
+    """Sends requests through the cache.
+
+    `calls` and `usage` cover real transport calls in this run; `hits` and
+    `cached_usage` cover answers served from the cache (cost avoided).
+    """
 
     def __init__(self, transport: Transport, cache: DiskCache) -> None:
         self._transport = transport
         self._cache = cache
         self.calls = 0
         self.hits = 0
+        self.usage = LlmUsage()
+        self.cached_usage = LlmUsage()
 
     def complete(self, request: LlmRequest) -> str:
         cached = self._cache.get(request)
         if cached is not None:
             self.hits += 1
-            return cached
-        response = self._transport(request)
+            self.cached_usage += cached.usage
+            return cached.text
+        reply = self._transport(request)
         self.calls += 1
-        self._cache.put(request, response)
-        return response
+        self.usage += reply.usage
+        self._cache.put(request, reply)
+        return reply.text

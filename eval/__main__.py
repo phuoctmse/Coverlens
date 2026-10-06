@@ -52,7 +52,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
     print(format_result(result))
     if not args.fake:
-        print(f"LLM calls {analysis.llm_calls}, cache hits {analysis.cache_hits}")
+        print(analysis.cost_line())
     return 0 if result.canary_ok else 1
 
 

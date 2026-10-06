@@ -12,7 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ValidationError
 
-from coverlens.cache.llm_cache import CachedClient, LlmRequest
+from coverlens.cache.llm_cache import CachedClient, LlmReply, LlmRequest, LlmUsage
 from coverlens.core.models import Case, Requirement, Status, Verdict
 
 DEFAULT_URL = "http://localhost:11434"
@@ -20,6 +20,7 @@ DEFAULT_MODEL = "llama3.1:8b"
 DEFAULT_OPTIONS: dict[str, Any] = {"temperature": 0, "seed": 42, "num_ctx": 8192}
 TEMPLATE_VERSION = "judge-v1"  # bump when SYSTEM_PROMPT or the prompt layout changes
 MAX_ERROR_CHARS = 400
+NANOSECONDS = 1_000_000_000  # Ollama reports durations in ns
 
 SYSTEM_PROMPT = """\
 You are a senior QA reviewer. You decide whether existing test cases verify one \
@@ -88,7 +89,7 @@ class OllamaTransport:
                 return str(entry.get("digest", ""))
         raise OllamaError(f"model {model} is not pulled; run: ollama pull {model}")
 
-    def __call__(self, request: LlmRequest) -> str:
+    def __call__(self, request: LlmRequest) -> LlmReply:
         payload = self._call(
             "/api/chat",
             {
@@ -105,7 +106,12 @@ class OllamaTransport:
         content = payload.get("message", {}).get("content")
         if not isinstance(content, str):
             raise OllamaError("/api/chat: reply has no message content")
-        return content
+        usage = LlmUsage(
+            prompt_tokens=int(payload.get("prompt_eval_count") or 0),
+            output_tokens=int(payload.get("eval_count") or 0),
+            seconds=int(payload.get("total_duration") or 0) / NANOSECONDS,
+        )
+        return LlmReply(text=content, usage=usage)
 
 
 def build_prompt(requirement: Requirement, candidates: Sequence[Case]) -> str:

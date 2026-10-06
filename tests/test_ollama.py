@@ -4,7 +4,13 @@ from pathlib import Path
 import pytest
 from conftest import FakeOllamaServer
 
-from coverlens.cache.llm_cache import CachedClient, DiskCache, LlmRequest
+from coverlens.cache.llm_cache import (
+    CachedClient,
+    DiskCache,
+    LlmReply,
+    LlmRequest,
+    LlmUsage,
+)
 from coverlens.core.models import Case, Requirement, Status
 from coverlens.core.protocols import Verifier
 from coverlens.verifiers.ollama import (
@@ -43,12 +49,12 @@ class Scripted:
         self.replies = list(replies)
         self.requests: list[LlmRequest] = []
 
-    def __call__(self, request: LlmRequest) -> str:
+    def __call__(self, request: LlmRequest) -> LlmReply:
         self.requests.append(request)
         reply = self.replies.pop(0)
         if isinstance(reply, Exception):
             raise reply
-        return reply
+        return LlmReply(text=reply)
 
 
 def verifier(transport: Scripted, tmp_path: Path) -> OllamaVerifier:
@@ -169,8 +175,8 @@ def sample_request() -> LlmRequest:
 def test_transport_posts_a_non_streaming_chat_with_the_schema(
     fake_ollama: FakeOllamaServer,
 ) -> None:
-    content = OllamaTransport(fake_ollama.url)(sample_request())
-    assert json.loads(content)["status"] == "gap"
+    reply = OllamaTransport(fake_ollama.url)(sample_request())
+    assert json.loads(reply.text)["status"] == "gap"
     [body] = fake_ollama.seen
     assert body["model"] == "llama3.1:8b"
     assert body["stream"] is False
@@ -203,3 +209,22 @@ def test_malformed_replies_become_ollama_errors(fake_ollama: FakeOllamaServer) -
 def test_unreachable_server_is_an_ollama_error() -> None:
     with pytest.raises(OllamaError, match="127.0.0.1:9"):
         OllamaTransport("http://127.0.0.1:9", timeout=2).model_digest("x")
+
+
+def test_transport_reports_token_counts_and_duration(
+    fake_ollama: FakeOllamaServer,
+) -> None:
+    body = {
+        "message": {"content": answer("gap")},
+        "prompt_eval_count": 1200,
+        "eval_count": 45,
+        "total_duration": 2_500_000_000,  # nanoseconds
+    }
+    fake_ollama.reply_with(json.dumps(body))
+    reply = OllamaTransport(fake_ollama.url)(sample_request())
+    assert reply.usage == LlmUsage(prompt_tokens=1200, output_tokens=45, seconds=2.5)
+
+
+def test_missing_usage_fields_count_as_zero(fake_ollama: FakeOllamaServer) -> None:
+    fake_ollama.reply_with(json.dumps({"message": {"content": answer("gap")}}))
+    assert OllamaTransport(fake_ollama.url)(sample_request()).usage == LlmUsage()

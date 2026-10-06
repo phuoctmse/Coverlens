@@ -95,5 +95,5 @@ def main(argv: Sequence[str] | None = None) -> int:
             f" {pw.extra_combinations} more combinations would cover the rest"
         )
     if not args.fake:
-        print(f"LLM calls {analysis.llm_calls}, cache hits {analysis.cache_hits}")
+        print(analysis.cost_line())
     return 0

@@ -111,9 +111,14 @@ def test_llm_run_rerun_makes_zero_calls(
     calls = len(fake_ollama.seen)
     assert calls > 0
     assert f"LLM calls {calls}, cache hits 0" in first
+    assert f"tokens {calls * 1200:,} in / {calls * 45:,} out" in first
+    assert f"LLM {calls * 2.5:.1f} s" in first
 
     assert run(*args) == 0
-    assert "LLM calls 0," in capsys.readouterr().out
+    rerun = capsys.readouterr().out
+    assert "LLM calls 0," in rerun
+    assert "tokens 0 in / 0 out" in rerun
+    assert f"cache saved {calls * 1200:,} in / {calls * 45:,} out" in rerun
     assert len(fake_ollama.seen) == calls
 
 
