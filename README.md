@@ -32,7 +32,7 @@ uv run coverlens run --domain ... --spec ... --suite ... --out out/
 ```
 
 Options: `--model` (default `llama3.1:8b`), `--ollama-url` (default
-`http://localhost:11434`), `--cache-dir` (default `.coverlens_cache/`). Every
+`http://127.0.0.1:11434`), `--cache-dir` (default `.coverlens_cache/`). Every
 LLM reply is cached by a hash of the full request, so rerunning unchanged
 input makes no LLM calls; the run prints how many calls it made.
 

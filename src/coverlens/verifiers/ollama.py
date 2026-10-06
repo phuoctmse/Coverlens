@@ -15,7 +15,9 @@ from pydantic import BaseModel, ValidationError
 from coverlens.cache.llm_cache import CachedClient, LlmReply, LlmRequest, LlmUsage
 from coverlens.core.models import Case, Requirement, Status, Verdict
 
-DEFAULT_URL = "http://localhost:11434"
+# 127.0.0.1, not localhost: on Windows "localhost" tries IPv6 first and Ollama
+# listens on IPv4 only, which cost ~2 s per call (measured 2026-10-06).
+DEFAULT_URL = "http://127.0.0.1:11434"
 DEFAULT_MODEL = "llama3.1:8b"
 DEFAULT_OPTIONS: dict[str, Any] = {"temperature": 0, "seed": 42, "num_ctx": 8192}
 TEMPLATE_VERSION = "judge-v1"  # bump when SYSTEM_PROMPT or the prompt layout changes

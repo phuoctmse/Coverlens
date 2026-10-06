@@ -228,3 +228,9 @@ def test_transport_reports_token_counts_and_duration(
 def test_missing_usage_fields_count_as_zero(fake_ollama: FakeOllamaServer) -> None:
     fake_ollama.reply_with(json.dumps({"message": {"content": answer("gap")}}))
     assert OllamaTransport(fake_ollama.url)(sample_request()).usage == LlmUsage()
+
+
+def test_default_url_avoids_the_localhost_ipv6_detour() -> None:
+    from coverlens.verifiers.ollama import DEFAULT_URL
+
+    assert DEFAULT_URL == "http://127.0.0.1:11434"
