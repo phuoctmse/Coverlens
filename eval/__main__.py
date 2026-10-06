@@ -1,13 +1,17 @@
 """`python -m eval --fake`: run the pipeline on the dev data and score it.
 
+Prints 95% bootstrap intervals; `--save` stores the run and `--compare` checks
+whether a change against a saved run is a real gain, a real loss, or noise.
 Exits 1 if the inputs are bad or the canary fails.
 """
 
 import argparse
 import sys
 from collections.abc import Sequence
+from functools import partial
 from pathlib import Path
 
+from coverlens.core.report import Report
 from coverlens.pipeline import (
     DEFAULT_CACHE_DIR,
     INPUT_ERRORS,
@@ -15,8 +19,21 @@ from coverlens.pipeline import (
     JudgeUnavailableError,
     analyze,
 )
-from coverlens.verifiers.ollama import DEFAULT_MODEL, DEFAULT_URL
-from eval.answer_key import DATA_DIR, DEFAULT_KEY, load_key
+from coverlens.verifiers.ollama import DEFAULT_MODEL, DEFAULT_URL, TEMPLATE_VERSION
+from eval.answer_key import DATA_DIR, DEFAULT_KEY, AnswerKey, load_key
+from eval.bootstrap import (
+    Comparison,
+    Metric,
+    Outcome,
+    accuracy,
+    bootstrap_interval,
+    compare,
+    load_label,
+    load_outcomes,
+    precision,
+    recall,
+    save_outcomes,
+)
 from eval.metrics import evaluate, format_result
 
 DEFAULT_PACK = DATA_DIR.parents[1] / "domains" / "ott_web" / "pack.yaml"
@@ -32,13 +49,68 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--ollama-url", default=DEFAULT_URL)
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
+    parser.add_argument("--save", type=Path, help="store this run for --compare")
+    parser.add_argument("--compare", type=Path, help="a run saved with --save")
     return parser
+
+
+def outcomes_of(report: Report, key: AnswerKey) -> dict[str, Outcome]:
+    return {
+        row.requirement_id: Outcome(
+            predicted=row.status.value,
+            gold="covered" if row.requirement_id in key.covered else "gap",
+        )
+        for row in report.requirements
+    }
+
+
+def format_intervals(outcomes: dict[str, Outcome]) -> str:
+    rows = list(outcomes.values())
+    metrics: list[tuple[str, Metric]] = [
+        ("Accuracy", accuracy),
+        ("Gap precision", partial(precision, label="gap")),
+        ("Gap recall", partial(recall, label="gap")),
+        ("Covered precision", partial(precision, label="covered")),
+        ("Covered recall", partial(recall, label="covered")),
+    ]
+    correct = sum(r.correct for r in rows)
+    lines = [f"Accuracy            {correct}/{len(rows)} ({correct / len(rows):.0%})"]
+    lines.append("95% CI (bootstrap over requirements):")
+    for name, metric in metrics:
+        value, interval = metric(rows), bootstrap_interval(rows, metric)
+        if value is None or interval is None:
+            lines.append(f"  {name:<18}n/a")
+        else:
+            low, high = interval
+            lines.append(f"  {name:<18}{value:.0%}  [{low:.0%}, {high:.0%}]")
+    return "\n".join(lines)
+
+
+def format_comparison(result: Comparison, path: Path) -> str:
+    verdict = {
+        "gain": "a real gain",
+        "loss": "a real loss",
+        "noise": "within noise",
+    }[result.verdict]
+    label = load_label(path)
+    lines = [
+        f"Compared with {path}" + (f" ({label})" if label else ""),
+        (
+            f"  accuracy {result.base_accuracy:.0%} -> {result.new_accuracy:.0%},"
+            f" change {result.delta:+.1%},"
+            f" 95% CI [{result.low:+.1%}, {result.high:+.1%}]: {verdict}"
+        ),
+        f"  fixed: {', '.join(result.fixed) or '-'}",
+        f"  broke: {', '.join(result.broke) or '-'}",
+    ]
+    return "\n".join(lines)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         key = load_key(args.key)
+        base = load_outcomes(args.compare) if args.compare else None
         judge = JudgeSettings(
             fake=args.fake,
             model=args.model,
@@ -47,12 +119,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         analysis = analyze(args.domain, args.spec, args.suite, judge)
         result = evaluate(analysis.report, key)
+        outcomes = outcomes_of(analysis.report, key)
+        comparison = compare(base, outcomes) if base is not None else None
     except (*INPUT_ERRORS, JudgeUnavailableError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     print(format_result(result))
+    print(format_intervals(outcomes))
+    if comparison is not None and args.compare is not None:
+        print(format_comparison(comparison, args.compare))
     if not args.fake:
         print(analysis.cost_line())
+    if args.save:
+        label = "fake" if args.fake else f"{args.model} {TEMPLATE_VERSION}"
+        save_outcomes(args.save, outcomes, label)
+        print(f"Saved this run to {args.save}")
     return 0 if result.canary_ok else 1
 
 
