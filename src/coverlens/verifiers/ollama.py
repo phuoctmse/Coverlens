@@ -20,6 +20,9 @@ from coverlens.core.models import Case, Requirement, Status, Verdict
 DEFAULT_URL = "http://127.0.0.1:11434"
 DEFAULT_MODEL = "llama3.1:8b"
 DEFAULT_OPTIONS: dict[str, Any] = {"temperature": 0, "seed": 42, "num_ctx": 8192}
+# Ollama unloads an idle model after 5 minutes by default; reloading costs
+# ~5 s, so keep it a little longer between review-and-rerun cycles.
+DEFAULT_KEEP_ALIVE = "30m"
 TEMPLATE_VERSION = "judge-v1"  # bump when SYSTEM_PROMPT or the prompt layout changes
 MAX_ERROR_CHARS = 400
 NANOSECONDS = 1_000_000_000  # Ollama reports durations in ns
@@ -55,7 +58,13 @@ OUTPUT_SCHEMA = JudgeAnswer.model_json_schema()
 class OllamaTransport:
     """Sends one chat request to Ollama and returns the reply text."""
 
-    def __init__(self, base_url: str = DEFAULT_URL, timeout: float = 300) -> None:
+    def __init__(
+        self,
+        base_url: str = DEFAULT_URL,
+        timeout: float = 300,
+        keep_alive: str = DEFAULT_KEEP_ALIVE,
+    ) -> None:
+        self.keep_alive = keep_alive  # a server setting, not part of the cache key
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         # Ignore system proxy settings: Ollama runs on this machine.
@@ -103,6 +112,7 @@ class OllamaTransport:
                 "format": request.output_schema,
                 "options": request.options,
                 "stream": False,
+                "keep_alive": self.keep_alive,
             },
         )
         content = payload.get("message", {}).get("content")
@@ -113,6 +123,15 @@ class OllamaTransport:
             output_tokens=int(payload.get("eval_count") or 0),
             seconds=int(payload.get("total_duration") or 0) / NANOSECONDS,
         )
+        num_ctx = request.options.get("num_ctx")
+        used = usage.prompt_tokens + usage.output_tokens
+        if num_ctx and used >= num_ctx:
+            # Ollama does not document what it does with an overlong prompt; a
+            # full window most likely means it was cut, so do not trust the reply.
+            raise OllamaError(
+                f"prompt and reply filled the context window ({used} of num_ctx="
+                f"{num_ctx} tokens); the prompt may have been truncated, raise --num-ctx"
+            )
         return LlmReply(text=content, usage=usage)
 
 

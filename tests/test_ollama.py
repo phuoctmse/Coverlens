@@ -234,3 +234,40 @@ def test_default_url_avoids_the_localhost_ipv6_detour() -> None:
     from coverlens.verifiers.ollama import DEFAULT_URL
 
     assert DEFAULT_URL == "http://127.0.0.1:11434"
+
+
+# --- runtime tuning (phase 2 B2) -----------------------------------------------
+
+
+def test_transport_asks_ollama_to_keep_the_model_loaded(
+    fake_ollama: FakeOllamaServer,
+) -> None:
+    OllamaTransport(fake_ollama.url, keep_alive="45m")(sample_request())
+    assert fake_ollama.seen[-1]["keep_alive"] == "45m"
+
+
+def test_keep_alive_is_not_part_of_the_cache_key() -> None:
+    from coverlens.cache.llm_cache import LlmRequest as Request
+
+    assert "keep_alive" not in Request.model_fields
+
+
+def test_a_full_context_window_is_an_error_not_a_silent_truncation(
+    fake_ollama: FakeOllamaServer,
+) -> None:
+    body = {
+        "message": {"content": answer("gap")},
+        "prompt_eval_count": 2040,
+        "eval_count": 8,
+    }
+    fake_ollama.reply_with(json.dumps(body))
+    request = sample_request().model_copy(update={"options": {"num_ctx": 2048}})
+    with pytest.raises(OllamaError, match="num_ctx"):
+        OllamaTransport(fake_ollama.url)(request)
+
+
+def test_a_reply_well_inside_the_window_is_fine(fake_ollama: FakeOllamaServer) -> None:
+    body = {"message": {"content": answer("gap")}, "prompt_eval_count": 700}
+    fake_ollama.reply_with(json.dumps(body))
+    request = sample_request().model_copy(update={"options": {"num_ctx": 2048}})
+    assert OllamaTransport(fake_ollama.url)(request).usage.prompt_tokens == 700

@@ -11,6 +11,7 @@ from collections.abc import Sequence
 from functools import partial
 from pathlib import Path
 
+from coverlens.cli import positive_int
 from coverlens.core.report import Report
 from coverlens.pipeline import (
     DEFAULT_CACHE_DIR,
@@ -19,7 +20,12 @@ from coverlens.pipeline import (
     JudgeUnavailableError,
     analyze,
 )
-from coverlens.verifiers.ollama import DEFAULT_MODEL, DEFAULT_URL, TEMPLATE_VERSION
+from coverlens.verifiers.ollama import (
+    DEFAULT_MODEL,
+    DEFAULT_OPTIONS,
+    DEFAULT_URL,
+    TEMPLATE_VERSION,
+)
 from eval.answer_key import DATA_DIR, DEFAULT_KEY, AnswerKey, load_key
 from eval.bootstrap import (
     Comparison,
@@ -49,6 +55,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--ollama-url", default=DEFAULT_URL)
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
+    parser.add_argument(
+        "--num-ctx", type=positive_int, default=DEFAULT_OPTIONS["num_ctx"]
+    )
     parser.add_argument("--save", type=Path, help="store this run for --compare")
     parser.add_argument("--compare", type=Path, help="a run saved with --save")
     return parser
@@ -116,6 +125,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             model=args.model,
             ollama_url=args.ollama_url,
             cache_dir=args.cache_dir,
+            num_ctx=args.num_ctx,
         )
         analysis = analyze(args.domain, args.spec, args.suite, judge)
         result = evaluate(analysis.report, key)

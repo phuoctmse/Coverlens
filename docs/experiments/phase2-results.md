@@ -26,3 +26,27 @@ identical tokens, so identical answers.
   [+0.0%, +9.6%]: within noise, as expected on 52 requirements. Held to the
   plan's bar: no loss, nothing broken.
 - Canary PASS. New baseline: `eval/baselines/llama3.1-8b_judge-v1_tier2.json`.
+
+## B2 (Ollama runtime tuning)
+
+Fresh caches, same 26 calls and 13,495 prompt tokens each run; verdicts
+identical to the B1 baseline at every setting (48/52, nothing broken).
+
+| num_ctx | VRAM used | Warm call median | Notes |
+|---|---|---|---|
+| 8192 | 6,936 MiB | 0.81-0.95 s | |
+| 4096 | 6,420 MiB | 0.93 s | measured right after a reload |
+| 2048 | 6,162 MiB | 0.83-0.93 s | |
+
+Run order decided the speed, not `num_ctx`: whichever setting ran right after
+a model reload was slower (0.93-0.95 s per call), a warm model gave 0.81-0.83 s
+at both 2048 and 8192. Prompts are at most 712 tokens, far below every window.
+
+Decisions:
+- Keep `num_ctx` 8192: a smaller window saves VRAM (-774 MiB at 2048) but no
+  time, and leaves less room for larger suites. `--num-ctx` is available.
+- Guard against silent truncation: a reply whose prompt plus output fills the
+  window is treated as an error (UNCERTAIN), since Ollama does not document
+  what it does with an overlong prompt.
+- `keep_alive` 30m instead of Ollama's default 5m: a reload measured 4.7-7.9 s,
+  paid again whenever two runs are more than 5 minutes apart.

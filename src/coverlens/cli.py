@@ -13,13 +13,20 @@ from coverlens.pipeline import (
     JudgeUnavailableError,
     analyze,
 )
-from coverlens.verifiers.ollama import DEFAULT_MODEL, DEFAULT_URL
+from coverlens.verifiers.ollama import DEFAULT_MODEL, DEFAULT_OPTIONS, DEFAULT_URL
 from coverlens.writers.excel_writer import ExcelWriter
 from coverlens.writers.json_writer import JsonWriter
 
 
 class CliError(Exception):
     """A problem the user can fix; printed without a traceback."""
+
+
+def positive_int(text: str) -> int:
+    value = int(text)
+    if value < 1:
+        raise argparse.ArgumentTypeError(f"must be a positive integer, got {value}")
+    return value
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -43,6 +50,12 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--cache-dir", type=Path, default=DEFAULT_CACHE_DIR, help="LLM cache folder"
     )
+    run.add_argument(
+        "--num-ctx",
+        type=positive_int,
+        default=DEFAULT_OPTIONS["num_ctx"],
+        help="LLM context window in tokens",
+    )
     return parser
 
 
@@ -52,6 +65,7 @@ def judge_settings(args: argparse.Namespace) -> JudgeSettings:
         model=args.model,
         ollama_url=args.ollama_url,
         cache_dir=args.cache_dir,
+        num_ctx=args.num_ctx,
     )
 
 

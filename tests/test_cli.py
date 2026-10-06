@@ -166,3 +166,18 @@ def test_module_entry_point_prints_help() -> None:
     )
     assert done.returncode == 0
     assert "--fake" in done.stdout
+
+
+def test_num_ctx_reaches_ollama(tmp_path: Path, fake_ollama: FakeOllamaServer) -> None:
+    args = ["--domain", PACK, "--spec", SPEC, "--suite", SUITE]
+    args += ["--out", str(tmp_path / "out"), "--cache-dir", str(tmp_path / "c")]
+    args += ["--ollama-url", fake_ollama.url, "--num-ctx", "3072"]
+    assert run(*args) == 0
+    assert {body["options"]["num_ctx"] for body in fake_ollama.seen} == {3072}
+
+
+@pytest.mark.parametrize("value", ["0", "-5", "abc"])
+def test_num_ctx_must_be_a_positive_integer(value: str) -> None:
+    with pytest.raises(SystemExit) as exc:
+        main(["run", "--domain", PACK, "--spec", SPEC, "--num-ctx", value])
+    assert exc.value.code == 2

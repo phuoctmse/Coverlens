@@ -17,6 +17,7 @@ from coverlens.verifiers.fake import FakeVerifier
 from coverlens.verifiers.noop import NoopVerifier
 from coverlens.verifiers.ollama import (
     DEFAULT_MODEL,
+    DEFAULT_OPTIONS,
     DEFAULT_URL,
     OllamaError,
     OllamaTransport,
@@ -38,6 +39,7 @@ class JudgeSettings:
     model: str = DEFAULT_MODEL
     ollama_url: str = DEFAULT_URL
     cache_dir: Path = DEFAULT_CACHE_DIR
+    num_ctx: int = DEFAULT_OPTIONS["num_ctx"]
 
 
 @dataclass(frozen=True)
@@ -77,7 +79,8 @@ def _tier3(
     except OllamaError as exc:
         raise JudgeUnavailableError(f"{exc} (or pass --fake)") from exc
     client = CachedClient(transport, DiskCache(judge.cache_dir))
-    return OllamaVerifier(client, judge.model, digest), client
+    options = {**DEFAULT_OPTIONS, "num_ctx": judge.num_ctx}
+    return OllamaVerifier(client, judge.model, digest, options), client
 
 
 def analyze(
