@@ -1,0 +1,89 @@
+# Domain pack for claims handling at a fictional insurer, Quillmoor Mutual.
+# Held-out domain: nothing in src/coverlens/core/ changed to support it.
+
+name: claims
+
+suite:
+  sheet: Claim tests
+  columns:              # Case field -> suite header
+    id: Case ID
+    title: Name
+    preconditions: Setup
+    steps: Test steps
+    expected_result: Expected outcome
+    refs: Covers requirement
+    tags: Labels
+  dimensions:
+    - Policy type
+    - Claim type
+    - Channel
+    - Customer tier
+    - Amount band
+  list_separator: ","
+
+# Suite label -> story, read from the story titles (no answer key used).
+tag_map:
+  fnol: CL-01
+  policy: CL-02
+  coverage: CL-03
+  deductible: CL-04
+  limits: CL-05
+  approval: CL-06
+  late: CL-07
+  documents: CL-08
+  fraud: CL-09
+  assignment: CL-10
+  sla: CL-11
+  status: CL-12
+  payments: CL-13
+  totalloss: CL-14
+  rental: CL-15
+  subrogation: CL-16
+  supplement: CL-17
+  notifications: CL-18
+  denial: CL-19
+  audit: CL-20
+
+# Held-out thresholds, chosen without the answer key (2026-10-07):
+# - gap_threshold 0: Tier 1 never concludes a certain gap here.
+# - orphan_threshold 5.5: the first break in the unlabelled score distribution
+#   of cases with no label and no reference (3.67-4.60 | 6.36 and up). Caveat:
+#   the person who chose it also wrote the labels, and saw that the largest
+#   break (7.43 | 9.96) would have flagged three paraphrased covers. Orphan
+#   metrics on this domain are therefore not blind.
+tier1:
+  top_k: 5
+  gap_threshold: 0
+  orphan_threshold: 5.5
+
+# Same value as ott_web; not tuned on this domain.
+tier2:
+  min_overlap: 0.75
+
+# Empty on purpose: a glossary written by the dataset's author would leak.
+glossary: {}
+
+pairwise:
+  values:
+    Policy type: [Auto, Home]
+    Claim type: [Collision, Theft, Glass, Fire, Water, Weather]
+    Channel: [Web, Phone]
+    Customer tier: [Standard, Preferred]
+    Amount band: ["Under 1,000", "1,000 to 5,000", "5,000 to 50,000", "Over 50,000"]
+  constraints:
+    - if: {Policy type: Auto}
+      then: {Claim type: [Collision, Theft, Glass]}
+    - if: {Policy type: Home}
+      then: {Claim type: [Fire, Water, Weather, Theft]}
+    - if: {Claim type: Glass}
+      then: {Amount band: ["Under 1,000", "1,000 to 5,000"]}
+
+forbidden_core_terms:
+  - deductible
+  - adjuster
+  - insurer
+  - subrogation
+  - lienholder
+  - policyholder
+  - payout
+  - quillmoor
