@@ -16,6 +16,7 @@ def format_disagreements(
     cases: Mapping[str, Case],
     reviews: Mapping[str, Review],
     today: datetime.date | None = None,
+    reviews_path: str = "the reviews file",
 ) -> str:
     today = today or datetime.datetime.now().astimezone().date()
     rows = [
@@ -53,7 +54,7 @@ def format_disagreements(
                 lines.append(f"  [{case_id}]\n    {text}")
     pending = [row for row in rows if row.requirement_id not in reviews]
     if pending:
-        lines += ["", "# Add under 'reviews:' in eval/label_review.yaml:"]
+        lines += ["", f"# Add under 'reviews:' in {reviews_path}:"]
         for row in pending:
             lines += [
                 f"  - requirement_id: {row.requirement_id}",

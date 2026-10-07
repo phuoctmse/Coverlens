@@ -28,7 +28,7 @@ from coverlens.verifiers.ollama import (
     DEFAULT_URL,
     TEMPLATE_VERSION,
 )
-from eval.answer_key import DATA_DIR, DEFAULT_KEY, AnswerKey, load_key
+from eval.answer_key import DATASETS, AnswerKey, dataset_paths, load_key
 from eval.bootstrap import (
     Comparison,
     Metric,
@@ -44,22 +44,25 @@ from eval.bootstrap import (
 )
 from eval.disagreements import format_disagreements
 from eval.label_review import (
-    DEFAULT_REVIEWS,
     apply_reviews,
     changed_count,
     load_reviews,
 )
 from eval.metrics import evaluate, format_result
 
-DEFAULT_PACK = DATA_DIR.parents[1] / "domains" / "ott_web" / "pack.yaml"
-
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m eval")
-    parser.add_argument("--domain", type=Path, default=DEFAULT_PACK)
-    parser.add_argument("--spec", type=Path, default=DATA_DIR / "user_stories.md")
-    parser.add_argument("--suite", type=Path, default=DATA_DIR / "test_cases.xlsx")
-    parser.add_argument("--key", type=Path, default=DEFAULT_KEY)
+    parser.add_argument(
+        "--dataset",
+        choices=DATASETS,
+        default="ott_web",
+        help="dataset whose pack, inputs, key and reviews to use",
+    )
+    parser.add_argument("--domain", type=Path, help="override the dataset's pack")
+    parser.add_argument("--spec", type=Path, help="override the dataset's spec")
+    parser.add_argument("--suite", type=Path, help="override the dataset's suite")
+    parser.add_argument("--key", type=Path, help="override the dataset's key")
     parser.add_argument("--fake", action="store_true", help="offline fake judge")
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--ollama-url", default=DEFAULT_URL)
@@ -69,9 +72,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--save", type=Path, help="store this run for --compare")
     parser.add_argument("--compare", type=Path, help="a run saved with --save")
-    parser.add_argument(
-        "--reviews", type=Path, default=DEFAULT_REVIEWS, help="human label review"
-    )
+    parser.add_argument("--reviews", type=Path, help="override the label reviews")
     parser.add_argument(
         "--disagreements",
         action="store_true",
@@ -134,6 +135,12 @@ def format_comparison(result: Comparison, path: Path) -> str:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    paths = dataset_paths(args.dataset)
+    args.domain = args.domain or paths.pack
+    args.spec = args.spec or paths.spec
+    args.suite = args.suite or paths.suite
+    args.key = args.key or paths.key
+    args.reviews = args.reviews or paths.reviews
     try:
         key = load_key(args.key)
         base = load_outcomes(args.compare) if args.compare else None
@@ -172,7 +179,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(format_intervals(reviewed))
     if args.disagreements:
         by_id = {r.requirement_id: r for r in reviews}
-        print(format_disagreements(analysis.report, key, cases, by_id))
+        print(
+            format_disagreements(
+                analysis.report, key, cases, by_id, reviews_path=str(args.reviews)
+            )
+        )
     if not args.fake:
         print(analysis.cost_line())
     if args.save:

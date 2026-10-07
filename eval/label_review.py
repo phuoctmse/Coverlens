@@ -15,7 +15,6 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from eval.answer_key import AnswerKey
 
-DEFAULT_REVIEWS = Path(__file__).with_name("label_review.yaml")
 Label = Literal["covered", "gap"]
 
 

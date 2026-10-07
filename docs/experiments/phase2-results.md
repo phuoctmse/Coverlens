@@ -54,7 +54,7 @@ Decisions:
 ## C4 (label review of disagreements)
 
 With Tier 2 and `judge-v1`, the pipeline disagreed with the key on 4 of 52
-requirements. The user reviewed all 4 on 2026-10-07 (`eval/label_review.yaml`)
+requirements. The user reviewed all 4 on 2026-10-07 (`eval/reviews/ott_web.yaml`)
 and confirmed the key every time, so all 4 are judge errors:
 
 | Requirement | Key | Judge | Error type |

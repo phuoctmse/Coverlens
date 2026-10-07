@@ -146,3 +146,28 @@ def test_missing_key_exits_1(
 ) -> None:
     assert main(["--fake", "--key", str(tmp_path / "nope.json")]) == 1
     assert "nope.json" in capsys.readouterr().err
+
+
+# --- datasets ------------------------------------------------------------------
+
+
+def test_dataset_paths_follow_the_layout() -> None:
+    from eval.answer_key import dataset_paths
+
+    paths = dataset_paths("claims")
+    assert paths.pack.as_posix().endswith("domains/claims/pack.yaml")
+    assert paths.spec.as_posix().endswith("data/claims/user_stories.md")
+    assert paths.key.as_posix().endswith("data/claims/answer_key.json")
+    assert paths.reviews.as_posix().endswith("eval/reviews/claims.yaml")
+
+
+def test_eval_runs_on_the_claims_dataset(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["--fake", "--dataset", "claims"]) == 0
+    out = capsys.readouterr().out
+    assert "/100 (" in out  # accuracy over the 100 claims criteria
+    assert "Canary" in out
+
+
+def test_unknown_dataset_is_a_usage_error() -> None:
+    with pytest.raises(SystemExit):
+        main(["--fake", "--dataset", "nope"])
