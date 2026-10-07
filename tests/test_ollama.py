@@ -271,3 +271,29 @@ def test_a_reply_well_inside_the_window_is_fine(fake_ollama: FakeOllamaServer) -
     fake_ollama.reply_with(json.dumps(body))
     request = sample_request().model_copy(update={"options": {"num_ctx": 2048}})
     assert OllamaTransport(fake_ollama.url)(request).usage.prompt_tokens == 700
+
+
+# --- output cap -------------------------------------------------------------------
+
+
+def test_default_options_cap_the_output() -> None:
+    from coverlens.verifiers.ollama import DEFAULT_OPTIONS
+
+    assert DEFAULT_OPTIONS["num_predict"] == 512
+
+
+def test_a_reply_that_hits_the_output_cap_is_an_error(
+    fake_ollama: FakeOllamaServer,
+) -> None:
+    body = {"message": {"content": '{"status": "cov'}, "eval_count": 512}
+    fake_ollama.reply_with(json.dumps(body))
+    request = sample_request().model_copy(update={"options": {"num_predict": 512}})
+    with pytest.raises(OllamaError, match="num_predict"):
+        OllamaTransport(fake_ollama.url)(request)
+
+
+def test_a_reply_under_the_cap_is_fine(fake_ollama: FakeOllamaServer) -> None:
+    body = {"message": {"content": answer("gap")}, "eval_count": 60}
+    fake_ollama.reply_with(json.dumps(body))
+    request = sample_request().model_copy(update={"options": {"num_predict": 512}})
+    assert OllamaTransport(fake_ollama.url)(request).usage.output_tokens == 60

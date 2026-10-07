@@ -19,7 +19,14 @@ from coverlens.core.models import Case, Requirement, Status, Verdict
 # listens on IPv4 only, which cost ~2 s per call (measured 2026-10-06).
 DEFAULT_URL = "http://127.0.0.1:11434"
 DEFAULT_MODEL = "llama3.1:8b"
-DEFAULT_OPTIONS: dict[str, Any] = {"temperature": 0, "seed": 42, "num_ctx": 8192}
+# num_predict caps the reply: replies are under 100 tokens, but a degenerate one
+# can run on until the HTTP timeout (seen: 300 s on every rerun of one call).
+DEFAULT_OPTIONS: dict[str, Any] = {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 512,
+}
 # Ollama unloads an idle model after 5 minutes by default; reloading costs
 # ~5 s, so keep it a little longer between review-and-rerun cycles.
 DEFAULT_KEEP_ALIVE = "30m"
@@ -131,6 +138,12 @@ class OllamaTransport:
             raise OllamaError(
                 f"prompt and reply filled the context window ({used} of num_ctx="
                 f"{num_ctx} tokens); the prompt may have been truncated, raise --num-ctx"
+            )
+        num_predict = request.options.get("num_predict")
+        if num_predict and usage.output_tokens >= num_predict:
+            # A reply this long is a model running on; it is cut and will not parse.
+            raise OllamaError(
+                f"reply hit the num_predict limit ({num_predict} tokens) and was cut"
             )
         return LlmReply(text=content, usage=usage)
 

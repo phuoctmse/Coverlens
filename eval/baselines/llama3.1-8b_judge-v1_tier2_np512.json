@@ -1,0 +1,213 @@
+{
+  "label": "llama3.1:8b judge-v1",
+  "outcomes": {
+    "US-01.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-01.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-01.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-01.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-02.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-02.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-02.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-02.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-03.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-03.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-03.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-03.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-04.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-04.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-04.AC3": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "US-04.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-05.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-05.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-05.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-05.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-06.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-06.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-06.AC3": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "US-06.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-07.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-07.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-07.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-07.AC4": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "US-08.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-08.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-08.AC3": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "US-08.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-09.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-09.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-09.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-09.AC4": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "US-10.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-10.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-10.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-10.AC4": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "US-11.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-11.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-11.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-11.AC4": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "US-12.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-12.AC2": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "US-12.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-12.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-13.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-13.AC2": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "US-13.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "US-13.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    }
+  }
+}

@@ -48,3 +48,57 @@ Pooled: 127 / 152 correct (84%). The offline fake judge scored 60/100 on claims.
   compound criteria condition by condition (C2) is the lever with evidence
   behind it. Measure it on both domains.
 - Human review of the 21 disagreements (C4) before treating 79% as final.
+
+## C2: checklist judging (not merged)
+
+`--judge checklist`: one LLM call splits the criterion into conditions, a
+second lists the cases that check each condition; COVERED only when every
+condition has a case. Code on branch `c2-checklist`.
+
+| | single (baseline) | checklist | paired comparison |
+|---|---|---|---|
+| ott_web accuracy | 92% | 83% | -9.6%, CI [-19.2%, +0.0%]: within noise, fixed 1, broke 6 |
+| claims accuracy | 79% | 75% | -4.0%, CI [-13.0%, +6.0%]: within noise, fixed 10, broke 14 |
+| claims covered precision | 81% | 74% | |
+| claims gap recall | 63% | 34% | |
+| claims LLM calls / tokens in | 69 / 38,110 | 137 / 49,542 | |
+
+It fixed the strict errors (10 on claims) but made the judge more lenient,
+not less. Splitting cuts each condition loose from the others, so each part is
+easy to match on its own, and the judge pairs parts from unrelated cases. For
+CL-04.AC5 "the deductible is waived once third-party liability is confirmed"
+it matched "liability confirmed" to QT-077 and "deductible is waived" to
+QT-018 (a case that subtracts the deductible): the relation between the
+conditions, which is what the criterion is about, was never checked.
+
+Decision: not merged. A checklist would need each case checked against all
+conditions together, which is the single-verdict judge again.
+
+## Runaway call found along the way
+
+The claims checklist run took 482 s for 181 s of LLM time: one call
+(CL-15.AC1) hung until the 300 s HTTP timeout on every run, and failed calls
+are not cached, so every rerun paid it again. Likely cause: no cap on output
+tokens (`num_predict`), letting a degenerate reply run on.
+
+## Output cap (`num_predict` 512), merged
+
+Cause confirmed by replaying the hanging call with the candidates in cascade
+order: without a cap the reply never ended (timed out at 120 s); with
+`num_predict` 512 it stopped after 512 tokens (8 s), failed to parse, and the
+criterion came back UNCERTAIN in about 17 s. The transport now treats a reply
+that reaches `num_predict` as an error, so the verifier answers UNCERTAIN at
+once instead of retrying a reply that will be cut again. Replies normally use
+under 100 tokens.
+
+Re-running both domains with the cap (fresh cache, `judge-v1`, Tier 2):
+
+| | before | with cap | paired comparison |
+|---|---|---|---|
+| ott_web | 48/52 | 50/52 | +3.8%, within noise; fixed 2, broke 0 |
+| claims | 79/100 | 81/100 | +2.0%, within noise; fixed 2, broke 0 |
+
+No reply reached the cap, yet four verdicts flipped (all towards the key): the
+new option alone changed the decoding slightly. This is the model's
+sensitivity to configuration seen throughout phase 2, not an improvement.
+New baselines: `eval/baselines/*_np512.json`.
