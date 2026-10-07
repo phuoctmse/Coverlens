@@ -102,3 +102,26 @@ No reply reached the cap, yet four verdicts flipped (all towards the key): the
 new option alone changed the decoding slightly. This is the model's
 sensitivity to configuration seen throughout phase 2, not an improvement.
 New baselines: `eval/baselines/*_np512.json`.
+
+## Stronger model: gpt-oss:120b on Ollama Cloud (free plan)
+
+Probe on one hard criterion (CL-06.AC2) with the three starter models that
+answered on the free plan: gpt-oss:120b 2.1 s, valid JSON; gemma4:31b invalid
+JSON twice (UNCERTAIN); nemotron-3-ultra 54 s. gpt-oss:120b was run in full
+(`--ollama-url https://ollama.com --model gpt-oss:120b --num-predict 4096`,
+prompt `judge-v1`, Tier 2 unchanged), compared with the llama3.1:8b baselines:
+
+| | llama3.1:8b | gpt-oss:120b | paired comparison |
+|---|---|---|---|
+| ott_web | 50/52 | 51/52, 98% [94%, 100%] | +1.9%, within noise; fixed 1, broke 0 |
+| claims | 81/100 | **92/100, 92% [86%, 97%]** | **+11.0%, CI [+3.0%, +19.0%]: a real gain**; fixed 15, broke 4 |
+| claims gap precision / recall | 73% / 63% | 100% / 77% | |
+| claims covered precision / recall | 81% / 88% | 89% / 100% | |
+| claims cost | 69 calls, local | 69 calls, 42,222 in / 21,035 out tokens, 145 s | |
+
+The first change in the project to clear the paired bootstrap. Remaining claims
+errors are all "covered" on a gap: three come from the Tier 2 overlap rule
+(CL-03.AC1, CL-07.AC4, CL-10.AC3), which is now the weakest link; five from the
+judge (partial covers CL-05.AC2 and CL-05.AC5, boundary CL-17.AC3, and two
+labels that look debatable: CL-03.AC5, CL-06.AC2). Baselines:
+`eval/baselines/*gpt-oss-120b*`.

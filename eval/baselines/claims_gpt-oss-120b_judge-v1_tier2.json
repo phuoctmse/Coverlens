@@ -1,0 +1,405 @@
+{
+  "label": "gpt-oss:120b judge-v1",
+  "outcomes": {
+    "CL-01.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-01.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-01.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-01.AC4": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-01.AC5": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-02.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-02.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-02.AC3": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-02.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-02.AC5": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-03.AC1": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "CL-03.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-03.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-03.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-03.AC5": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "CL-04.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-04.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-04.AC3": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-04.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-04.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-05.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-05.AC2": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "CL-05.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-05.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-05.AC5": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "CL-06.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-06.AC2": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "CL-06.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-06.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-06.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-07.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-07.AC2": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-07.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-07.AC4": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "CL-07.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-08.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-08.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-08.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-08.AC4": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-08.AC5": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-09.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-09.AC2": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-09.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-09.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-09.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-10.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-10.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-10.AC3": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "CL-10.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-10.AC5": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-11.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-11.AC2": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-11.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-11.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-11.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-12.AC1": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-12.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-12.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-12.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-12.AC5": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-13.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-13.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-13.AC3": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-13.AC4": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-13.AC5": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-14.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-14.AC2": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-14.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-14.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-14.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-15.AC1": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-15.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-15.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-15.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-15.AC5": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-16.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-16.AC2": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-16.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-16.AC4": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-16.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-17.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-17.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-17.AC3": {
+      "predicted": "covered",
+      "gold": "gap"
+    },
+    "CL-17.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-17.AC5": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-18.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-18.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-18.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-18.AC4": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-18.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-19.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-19.AC2": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-19.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-19.AC4": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-19.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-20.AC1": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-20.AC2": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-20.AC3": {
+      "predicted": "covered",
+      "gold": "covered"
+    },
+    "CL-20.AC4": {
+      "predicted": "gap",
+      "gold": "gap"
+    },
+    "CL-20.AC5": {
+      "predicted": "gap",
+      "gold": "gap"
+    }
+  }
+}
