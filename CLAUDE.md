@@ -17,7 +17,7 @@ Current scope: PHASE 2 — phase 1 runs end to end on the OTT web domain (`domai
 - Core is domain-agnostic. Everything domain-specific (dimensions, constraints, glossary, Excel column mapping) lives in a YAML domain pack. Code in `src/coverlens/core/` must never contain domain words (e.g. region, DRM, browser, entitlement); a contract test enforces this.
 - Exactly three extension points, as `typing.Protocol`: `InputAdapter`, `Verifier` (backend), `OutputWriter`.
 - Verifier cascade: Tier 1 is algorithmic (ID/tag match + BM25, top-k) and may only conclude "certain gap" or "orphan case", never "covered". Tier 2 is a rule-based overlap judge that may only conclude "covered" (threshold in the pack; it never concludes "gap"). Tier 3 is an LLM judge with forced structured output.
-- The LLM backend is a local Llama model via Ollama (no paid API). Every LLM call is cached by hash of (model, model digest, system prompt, prompt, options, output schema, template version); rerunning unchanged input must make 0 calls.
+- The LLM backend is Ollama: a local Llama model by default, or Ollama Cloud on the free plan (`--ollama-url https://ollama.com`, key from `--api-key-file` or `OLLAMA_API_KEY`, never committed, logged or cached). No paid API. Every LLM call is cached by hash of (model, model digest, system prompt, prompt, options, output schema, template version); rerunning unchanged input must make 0 calls.
 - Every "covered" verdict must cite at least one case ID.
 - `FakeVerifier` keeps the whole test suite offline.
 - All data is synthetic or public. Never use or invent data resembling a real company's internal data.

@@ -16,11 +16,13 @@ from coverlens.cli import positive_int
 from coverlens.core.pack import load_pack
 from coverlens.core.report import Report
 from coverlens.pipeline import (
+    API_KEY_ENV,
     DEFAULT_CACHE_DIR,
     INPUT_ERRORS,
     JudgeSettings,
     JudgeUnavailableError,
     analyze,
+    resolve_api_key,
 )
 from coverlens.verifiers.ollama import (
     DEFAULT_MODEL,
@@ -69,6 +71,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
     parser.add_argument(
         "--num-ctx", type=positive_int, default=DEFAULT_OPTIONS["num_ctx"]
+    )
+    parser.add_argument(
+        "--num-predict",
+        type=positive_int,
+        default=DEFAULT_OPTIONS["num_predict"],
+        help="cap on reply tokens (raise it for thinking models)",
+    )
+    parser.add_argument(
+        "--api-key-file",
+        type=Path,
+        help=f"file holding an Ollama Cloud key (default: ${API_KEY_ENV})",
     )
     parser.add_argument("--save", type=Path, help="store this run for --compare")
     parser.add_argument("--compare", type=Path, help="a run saved with --save")
@@ -150,6 +163,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             ollama_url=args.ollama_url,
             cache_dir=args.cache_dir,
             num_ctx=args.num_ctx,
+            num_predict=args.num_predict,
+            api_key=resolve_api_key(args.api_key_file),
         )
         analysis = analyze(args.domain, args.spec, args.suite, judge)
         result = evaluate(analysis.report, key)

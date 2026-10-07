@@ -31,6 +31,18 @@ ollama pull llama3.1:8b
 uv run coverlens run --domain ... --spec ... --suite ... --out out/
 ```
 
+To use a model on Ollama Cloud instead (free plan, starter models only), put
+your API key in a file outside the repository and point at it:
+
+```
+uv run coverlens run ... --ollama-url https://ollama.com --model gpt-oss:120b   --api-key-file ~/.ollama/cloud_api_key.txt --num-predict 4096
+```
+
+The key can also come from the `OLLAMA_API_KEY` environment variable. It is
+sent only as a request header; it is never written to the cache, the report or
+an error message. Thinking models spend reply tokens on reasoning, so give them
+a higher `--num-predict`.
+
 Options: `--model` (default `llama3.1:8b`), `--ollama-url` (default
 `http://127.0.0.1:11434`), `--cache-dir` (default `.coverlens_cache/`). Every
 LLM reply is cached by a hash of the full request, so rerunning unchanged

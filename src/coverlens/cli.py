@@ -6,12 +6,14 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from coverlens.pipeline import (
+    API_KEY_ENV,
     DEFAULT_CACHE_DIR,
     INPUT_ERRORS,
     Analysis,
     JudgeSettings,
     JudgeUnavailableError,
     analyze,
+    resolve_api_key,
 )
 from coverlens.verifiers.ollama import DEFAULT_MODEL, DEFAULT_OPTIONS, DEFAULT_URL
 from coverlens.writers.excel_writer import ExcelWriter
@@ -56,6 +58,17 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_OPTIONS["num_ctx"],
         help="LLM context window in tokens",
     )
+    run.add_argument(
+        "--num-predict",
+        type=positive_int,
+        default=DEFAULT_OPTIONS["num_predict"],
+        help="cap on reply tokens (raise it for thinking models)",
+    )
+    run.add_argument(
+        "--api-key-file",
+        type=Path,
+        help=f"file holding an Ollama Cloud key (default: ${API_KEY_ENV})",
+    )
     return parser
 
 
@@ -66,13 +79,15 @@ def judge_settings(args: argparse.Namespace) -> JudgeSettings:
         ollama_url=args.ollama_url,
         cache_dir=args.cache_dir,
         num_ctx=args.num_ctx,
+        num_predict=args.num_predict,
+        api_key=resolve_api_key(args.api_key_file),
     )
 
 
 def run_pipeline(args: argparse.Namespace) -> tuple[Analysis, list[Path]]:
     try:
         analysis = analyze(args.domain, args.spec, args.suite, judge_settings(args))
-    except (*INPUT_ERRORS, JudgeUnavailableError) as exc:
+    except (*INPUT_ERRORS, JudgeUnavailableError, ValueError) as exc:
         raise CliError(str(exc)) from exc
     try:
         written = [

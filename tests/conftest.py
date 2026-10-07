@@ -17,6 +17,7 @@ class FakeOllamaServer:
             {"name": "llama3.1:8b", "digest": "abc123"}
         ]
         self.seen: list[dict[str, Any]] = []
+        self.auth: list[str | None] = []  # Authorization header of every request
         self.status = 200
         self.body = json.dumps(
             {
@@ -53,9 +54,11 @@ class FakeOllamaServer:
                 self.wfile.write(body.encode("utf-8"))
 
             def do_GET(self) -> None:
+                server.auth.append(self.headers.get("Authorization"))
                 self._reply(200, json.dumps({"models": server.models}))
 
             def do_POST(self) -> None:
+                server.auth.append(self.headers.get("Authorization"))
                 length = int(self.headers["Content-Length"])
                 server.seen.append(json.loads(self.rfile.read(length)))
                 self._reply(server.status, server.body)

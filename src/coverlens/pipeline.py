@@ -1,5 +1,6 @@
 """Wires the concrete adapters and verifiers into one analysis run."""
 
+import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -33,6 +34,25 @@ class JudgeUnavailableError(Exception):
     """The requested Tier 3 judge cannot be used."""
 
 
+API_KEY_ENV = "OLLAMA_API_KEY"
+
+
+def resolve_api_key(key_file: Path | None) -> str | None:
+    """The Ollama Cloud key: from `key_file` if given, else the environment.
+
+    Keep the file outside the repository; the key is never logged or cached.
+    """
+    if key_file is not None:
+        try:
+            key = key_file.read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            raise ValueError(f"{key_file}: cannot read API key file: {exc}") from exc
+        if not key:
+            raise ValueError(f"{key_file}: API key file is empty")
+        return key
+    return os.environ.get(API_KEY_ENV) or None
+
+
 @dataclass(frozen=True)
 class JudgeSettings:
     fake: bool = False
@@ -40,6 +60,8 @@ class JudgeSettings:
     ollama_url: str = DEFAULT_URL
     cache_dir: Path = DEFAULT_CACHE_DIR
     num_ctx: int = DEFAULT_OPTIONS["num_ctx"]
+    num_predict: int = DEFAULT_OPTIONS["num_predict"]
+    api_key: str | None = field(default=None, repr=False)  # Ollama Cloud
 
 
 @dataclass(frozen=True)
@@ -73,13 +95,17 @@ def _tier3(
 ) -> tuple[Verifier, CachedClient | None]:
     if judge.fake:
         return FakeVerifier(glossary=pack.glossary), None
-    transport = OllamaTransport(judge.ollama_url)
+    transport = OllamaTransport(judge.ollama_url, api_key=judge.api_key)
     try:
         digest = transport.model_digest(judge.model)
     except OllamaError as exc:
         raise JudgeUnavailableError(f"{exc} (or pass --fake)") from exc
     client = CachedClient(transport, DiskCache(judge.cache_dir))
-    options = {**DEFAULT_OPTIONS, "num_ctx": judge.num_ctx}
+    options = {
+        **DEFAULT_OPTIONS,
+        "num_ctx": judge.num_ctx,
+        "num_predict": judge.num_predict,
+    }
     return OllamaVerifier(client, judge.model, digest, options), client
 
 

@@ -297,3 +297,36 @@ def test_a_reply_under_the_cap_is_fine(fake_ollama: FakeOllamaServer) -> None:
     fake_ollama.reply_with(json.dumps(body))
     request = sample_request().model_copy(update={"options": {"num_predict": 512}})
     assert OllamaTransport(fake_ollama.url)(request).usage.output_tokens == 60
+
+
+# --- Ollama Cloud: API key ------------------------------------------------------
+
+
+def test_api_key_is_sent_as_a_bearer_token(fake_ollama: FakeOllamaServer) -> None:
+    transport = OllamaTransport(fake_ollama.url, api_key="secret-123")
+    transport.model_digest("llama3.1:8b")
+    transport(sample_request())
+    assert fake_ollama.auth == ["Bearer secret-123", "Bearer secret-123"]
+
+
+def test_no_key_means_no_authorization_header(fake_ollama: FakeOllamaServer) -> None:
+    OllamaTransport(fake_ollama.url)(sample_request())
+    assert fake_ollama.auth == [None]
+
+
+def test_the_key_never_reaches_the_cache(
+    fake_ollama: FakeOllamaServer, tmp_path: Path
+) -> None:
+    transport = OllamaTransport(fake_ollama.url, api_key="secret-123")
+    client = CachedClient(transport, DiskCache(tmp_path))
+    client.complete(sample_request())
+    stored = "".join(p.read_text("utf-8") for p in tmp_path.rglob("*.json"))
+    assert "secret-123" not in stored
+
+
+def test_the_key_never_appears_in_errors(fake_ollama: FakeOllamaServer) -> None:
+    fake_ollama.reply_with(json.dumps({"error": "unauthorized"}), status=401)
+    with pytest.raises(OllamaError) as exc:
+        OllamaTransport(fake_ollama.url, api_key="secret-123")(sample_request())
+    assert "secret-123" not in str(exc.value)
+    assert "401" in str(exc.value)

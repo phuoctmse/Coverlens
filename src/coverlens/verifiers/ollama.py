@@ -6,6 +6,7 @@ through the LLM cache, so rerunning unchanged input makes no calls.
 
 import json
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections.abc import Sequence
 from typing import Any, Literal
@@ -70,19 +71,29 @@ class OllamaTransport:
         base_url: str = DEFAULT_URL,
         timeout: float = 300,
         keep_alive: str = DEFAULT_KEEP_ALIVE,
+        api_key: str | None = None,
     ) -> None:
         self.keep_alive = keep_alive  # a server setting, not part of the cache key
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
-        # Ignore system proxy settings: Ollama runs on this machine.
-        self._opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        # Ollama Cloud (https://ollama.com) needs a key; it is sent as a header
+        # only, and never stored in a request, the cache or an error message.
+        self._api_key = api_key
+        host = urllib.parse.urlsplit(self.base_url).hostname or ""
+        if host in {"127.0.0.1", "localhost", "::1"}:
+            # Ignore system proxy settings: Ollama runs on this machine.
+            handlers = [urllib.request.ProxyHandler({})]
+        else:
+            handlers = []
+        self._opener = urllib.request.build_opener(*handlers)
 
     def _call(self, path: str, body: dict[str, Any] | None = None) -> dict[str, Any]:
         url = f"{self.base_url}{path}"
         data = None if body is None else json.dumps(body).encode("utf-8")
-        request = urllib.request.Request(
-            url, data=data, headers={"Content-Type": "application/json"}
-        )
+        headers = {"Content-Type": "application/json"}
+        if self._api_key:
+            headers["Authorization"] = f"Bearer {self._api_key}"
+        request = urllib.request.Request(url, data=data, headers=headers)
         try:
             with self._opener.open(request, timeout=self.timeout) as response:
                 raw = response.read()

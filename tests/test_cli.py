@@ -181,3 +181,20 @@ def test_num_ctx_must_be_a_positive_integer(value: str) -> None:
     with pytest.raises(SystemExit) as exc:
         main(["run", "--domain", PACK, "--spec", SPEC, "--num-ctx", value])
     assert exc.value.code == 2
+
+
+def test_unreadable_api_key_file_exits_1(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    code = run(
+        "--domain",
+        PACK,
+        "--spec",
+        SPEC,
+        "--out",
+        str(tmp_path),
+        "--api-key-file",
+        str(tmp_path / "missing_key.txt"),
+    )
+    assert code == 1
+    assert "missing_key.txt" in capsys.readouterr().err
