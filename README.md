@@ -54,7 +54,8 @@ input makes no LLM calls; the run prints how many calls it made.
 1. **Tier 1** (refs, tags, BM25): concludes only "certain gap" or "orphan
    case", never "covered", and hands each other criterion a short list of
    candidate cases.
-2. **Tier 2**: an empty hook for now.
+2. **Tier 2** (rules): a case containing at least `tier2.min_overlap` of a
+   criterion's terms covers it, with no LLM call. It never concludes "gap".
 3. **Tier 3**: an LLM judge (local Llama via Ollama), which must cite the case
    IDs it relies on. `--fake` replaces it offline.
 

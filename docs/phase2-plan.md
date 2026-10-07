@@ -124,6 +124,8 @@ an eval run where relevant, and a commit.
 
 ### D3. Git pre-commit hook for commits made outside Claude
 
+**Status: dropped by the user on 2026-10-07.**
+
 - **Why:** the Claude Code hook only gates commits Claude runs; the user's own
   commits skip ruff and pytest.
 - **How:** `.githooks/pre-commit` (plain Python, no dependency) reuses the
