@@ -10,13 +10,21 @@ from coverlens.core.pack import load_pack
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_DIR = ROOT / "src" / "coverlens"
 CORE_DIR = PACKAGE_DIR / "core"
-DATA_DIR = ROOT / "data" / "ott_web"
+DATA_ROOT = ROOT / "data"
 
-# data/ is read-only input; re-pin only if the dataset is deliberately replaced.
-EXPECTED_SHA256: dict[str, str] = {
-    "answer_key.json": "d45aa4a7d79b152a98b1cfd8a818f5f99886e879ff51587d275e96ab4d8210e5",
-    "test_cases.xlsx": "386c3039e8ec28ec6d17eca21ea0ab946498bb690245d573b8dc9d06714adb16",
-    "user_stories.md": "c7df8e4ce13b0565ccea220d27679fcf6a9256965771e06f14b367c9289bba3f",
+# data/ is read-only input; re-pin only if a dataset is deliberately replaced.
+# data/claims/ is written once by eval/datasets/build_claims.py.
+EXPECTED_SHA256: dict[str, dict[str, str]] = {
+    "ott_web": {
+        "answer_key.json": "d45aa4a7d79b152a98b1cfd8a818f5f99886e879ff51587d275e96ab4d8210e5",
+        "test_cases.xlsx": "386c3039e8ec28ec6d17eca21ea0ab946498bb690245d573b8dc9d06714adb16",
+        "user_stories.md": "c7df8e4ce13b0565ccea220d27679fcf6a9256965771e06f14b367c9289bba3f",
+    },
+    "claims": {
+        "answer_key.json": "ad9425a51d493991c7910563d7de09a96a36faa0e354081d98a05e9e2b2f1501",
+        "test_cases.xlsx": "7d6f79b9e7ad456c24bb9cf8a729ed65fd58842538ebce3d12ec592aa83020c5",
+        "user_stories.md": "96ea2178d397e8acb0c4afc7fd3cf11ad110f72b4156590d6e43795d2c95333f",
+    },
 }
 
 PACK_FILES = sorted((ROOT / "domains").glob("*/pack.yaml"))
@@ -35,16 +43,21 @@ def python_files(directory: Path) -> list[Path]:
 
 def test_data_files_unchanged() -> None:
     changed = [
-        name
-        for name, expected in EXPECTED_SHA256.items()
-        if hashlib.sha256((DATA_DIR / name).read_bytes()).hexdigest() != expected
+        f"{dataset}/{name}"
+        for dataset, files in EXPECTED_SHA256.items()
+        for name, expected in files.items()
+        if hashlib.sha256((DATA_ROOT / dataset / name).read_bytes()).hexdigest()
+        != expected
     ]
     assert changed == [], f"data/ is read-only, but these files changed: {changed}"
 
 
 def test_data_dir_has_only_pinned_files() -> None:
-    present = sorted(p.name for p in DATA_DIR.iterdir())
-    assert present == sorted(EXPECTED_SHA256)
+    present = {
+        p.relative_to(DATA_ROOT).as_posix() for p in DATA_ROOT.rglob("*") if p.is_file()
+    }
+    pinned = {f"{d}/{name}" for d, files in EXPECTED_SHA256.items() for name in files}
+    assert present == pinned
 
 
 def test_pipeline_never_mentions_answer_key() -> None:

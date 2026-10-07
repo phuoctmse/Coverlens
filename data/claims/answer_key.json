@@ -1,0 +1,413 @@
+{
+  "note": "Answer key for the held-out claims domain. Built by an AI together with the cases; review disagreements before trusting the scores.",
+  "labelling_rule": "A criterion is covered only when the listed cases, together, check every condition it states.",
+  "requirements": 100,
+  "cases": 120,
+  "covered": {
+    "CL-01.AC1": [
+      "QT-001",
+      "QT-101"
+    ],
+    "CL-01.AC2": [
+      "QT-002"
+    ],
+    "CL-01.AC3": [
+      "QT-003"
+    ],
+    "CL-01.AC5": [
+      "QT-005"
+    ],
+    "CL-02.AC1": [
+      "QT-007",
+      "QT-008"
+    ],
+    "CL-02.AC2": [
+      "QT-008"
+    ],
+    "CL-02.AC4": [
+      "QT-010"
+    ],
+    "CL-02.AC5": [
+      "QT-011"
+    ],
+    "CL-03.AC2": [
+      "QT-013",
+      "QT-014"
+    ],
+    "CL-03.AC3": [
+      "QT-015"
+    ],
+    "CL-03.AC4": [
+      "QT-016",
+      "QT-117"
+    ],
+    "CL-04.AC1": [
+      "QT-018",
+      "QT-102"
+    ],
+    "CL-04.AC2": [
+      "QT-019"
+    ],
+    "CL-04.AC4": [
+      "QT-021"
+    ],
+    "CL-05.AC1": [
+      "QT-022"
+    ],
+    "CL-05.AC3": [
+      "QT-024",
+      "QT-025"
+    ],
+    "CL-05.AC4": [
+      "QT-022"
+    ],
+    "CL-06.AC1": [
+      "QT-027",
+      "QT-109"
+    ],
+    "CL-06.AC3": [
+      "QT-030"
+    ],
+    "CL-06.AC4": [
+      "QT-031"
+    ],
+    "CL-07.AC1": [
+      "QT-032",
+      "QT-033"
+    ],
+    "CL-07.AC3": [
+      "QT-036"
+    ],
+    "CL-08.AC1": [
+      "QT-037"
+    ],
+    "CL-08.AC2": [
+      "QT-039"
+    ],
+    "CL-08.AC3": [
+      "QT-040"
+    ],
+    "CL-08.AC5": [
+      "QT-042"
+    ],
+    "CL-09.AC1": [
+      "QT-043"
+    ],
+    "CL-09.AC3": [
+      "QT-045"
+    ],
+    "CL-09.AC4": [
+      "QT-046"
+    ],
+    "CL-10.AC1": [
+      "QT-048"
+    ],
+    "CL-10.AC2": [
+      "QT-049"
+    ],
+    "CL-10.AC4": [
+      "QT-051"
+    ],
+    "CL-10.AC5": [
+      "QT-052"
+    ],
+    "CL-11.AC1": [
+      "QT-053"
+    ],
+    "CL-11.AC3": [
+      "QT-055"
+    ],
+    "CL-11.AC4": [
+      "QT-056"
+    ],
+    "CL-12.AC2": [
+      "QT-058"
+    ],
+    "CL-12.AC3": [
+      "QT-059"
+    ],
+    "CL-12.AC4": [
+      "QT-060",
+      "QT-110"
+    ],
+    "CL-12.AC5": [
+      "QT-061",
+      "QT-062"
+    ],
+    "CL-13.AC1": [
+      "QT-063"
+    ],
+    "CL-13.AC2": [
+      "QT-064"
+    ],
+    "CL-13.AC5": [
+      "QT-066"
+    ],
+    "CL-14.AC1": [
+      "QT-067"
+    ],
+    "CL-14.AC3": [
+      "QT-070"
+    ],
+    "CL-14.AC4": [
+      "QT-071",
+      "QT-116"
+    ],
+    "CL-15.AC2": [
+      "QT-073"
+    ],
+    "CL-15.AC3": [
+      "QT-074"
+    ],
+    "CL-15.AC4": [
+      "QT-075"
+    ],
+    "CL-15.AC5": [
+      "QT-076"
+    ],
+    "CL-16.AC1": [
+      "QT-077",
+      "QT-113"
+    ],
+    "CL-16.AC3": [
+      "QT-079"
+    ],
+    "CL-17.AC1": [
+      "QT-080"
+    ],
+    "CL-17.AC2": [
+      "QT-081"
+    ],
+    "CL-17.AC4": [
+      "QT-084"
+    ],
+    "CL-17.AC5": [
+      "QT-084"
+    ],
+    "CL-18.AC1": [
+      "QT-085",
+      "QT-119"
+    ],
+    "CL-18.AC2": [
+      "QT-086",
+      "QT-087"
+    ],
+    "CL-18.AC3": [
+      "QT-088"
+    ],
+    "CL-19.AC1": [
+      "QT-090"
+    ],
+    "CL-19.AC3": [
+      "QT-092"
+    ],
+    "CL-19.AC4": [
+      "QT-093"
+    ],
+    "CL-20.AC1": [
+      "QT-094"
+    ],
+    "CL-20.AC2": [
+      "QT-095"
+    ],
+    "CL-20.AC3": [
+      "QT-096"
+    ]
+  },
+  "true_gaps": [
+    "CL-01.AC4",
+    "CL-02.AC3",
+    "CL-03.AC1",
+    "CL-03.AC5",
+    "CL-04.AC3",
+    "CL-04.AC5",
+    "CL-05.AC2",
+    "CL-05.AC5",
+    "CL-06.AC2",
+    "CL-06.AC5",
+    "CL-07.AC2",
+    "CL-07.AC4",
+    "CL-07.AC5",
+    "CL-08.AC4",
+    "CL-09.AC2",
+    "CL-09.AC5",
+    "CL-10.AC3",
+    "CL-11.AC2",
+    "CL-11.AC5",
+    "CL-12.AC1",
+    "CL-13.AC3",
+    "CL-13.AC4",
+    "CL-14.AC2",
+    "CL-14.AC5",
+    "CL-15.AC1",
+    "CL-16.AC2",
+    "CL-16.AC4",
+    "CL-16.AC5",
+    "CL-17.AC3",
+    "CL-18.AC4",
+    "CL-18.AC5",
+    "CL-19.AC2",
+    "CL-19.AC5",
+    "CL-20.AC4",
+    "CL-20.AC5"
+  ],
+  "decoys_claiming_gap_acs": [
+    {
+      "id": "QT-004",
+      "claims": "CL-01.AC4"
+    },
+    {
+      "id": "QT-012",
+      "claims": "CL-03.AC1"
+    },
+    {
+      "id": "QT-020",
+      "claims": "CL-04.AC3"
+    },
+    {
+      "id": "QT-029",
+      "claims": "CL-06.AC2"
+    },
+    {
+      "id": "QT-041",
+      "claims": "CL-08.AC4"
+    },
+    {
+      "id": "QT-047",
+      "claims": "CL-09.AC5"
+    },
+    {
+      "id": "QT-057",
+      "claims": "CL-12.AC1"
+    }
+  ],
+  "orphan_cases": [
+    "QT-098",
+    "QT-099",
+    "QT-100",
+    "QT-118"
+  ],
+  "cases_with_blank_requirement_ref": 91,
+  "case_kinds": {
+    "QT-001": "direct",
+    "QT-002": "paraphrase",
+    "QT-003": "direct",
+    "QT-004": "decoy",
+    "QT-005": "direct",
+    "QT-006": "same_topic",
+    "QT-007": "multi",
+    "QT-008": "multi",
+    "QT-009": "same_topic",
+    "QT-010": "boundary",
+    "QT-011": "paraphrase",
+    "QT-012": "decoy",
+    "QT-013": "multi",
+    "QT-014": "multi",
+    "QT-015": "paraphrase",
+    "QT-016": "direct",
+    "QT-017": "same_topic",
+    "QT-018": "direct",
+    "QT-019": "boundary",
+    "QT-020": "decoy",
+    "QT-021": "paraphrase",
+    "QT-022": "direct",
+    "QT-023": "partial",
+    "QT-024": "multi",
+    "QT-025": "multi",
+    "QT-026": "partial",
+    "QT-027": "boundary",
+    "QT-028": "boundary",
+    "QT-029": "decoy",
+    "QT-030": "direct",
+    "QT-031": "paraphrase",
+    "QT-032": "multi",
+    "QT-033": "multi",
+    "QT-034": "boundary",
+    "QT-035": "partial",
+    "QT-036": "direct",
+    "QT-037": "boundary",
+    "QT-038": "boundary",
+    "QT-039": "paraphrase",
+    "QT-040": "direct",
+    "QT-041": "decoy",
+    "QT-042": "direct",
+    "QT-043": "boundary",
+    "QT-044": "boundary",
+    "QT-045": "direct",
+    "QT-046": "paraphrase",
+    "QT-047": "decoy",
+    "QT-048": "direct",
+    "QT-049": "boundary",
+    "QT-050": "boundary",
+    "QT-051": "direct",
+    "QT-052": "direct",
+    "QT-053": "direct",
+    "QT-054": "partial",
+    "QT-055": "direct",
+    "QT-056": "paraphrase",
+    "QT-057": "decoy",
+    "QT-058": "direct",
+    "QT-059": "direct",
+    "QT-060": "direct",
+    "QT-061": "multi",
+    "QT-062": "multi",
+    "QT-063": "direct",
+    "QT-064": "paraphrase",
+    "QT-065": "partial",
+    "QT-066": "direct",
+    "QT-067": "boundary",
+    "QT-068": "boundary",
+    "QT-069": "partial",
+    "QT-070": "direct",
+    "QT-071": "direct",
+    "QT-072": "same_topic",
+    "QT-073": "direct",
+    "QT-074": "paraphrase",
+    "QT-075": "direct",
+    "QT-076": "direct",
+    "QT-077": "direct",
+    "QT-078": "same_topic",
+    "QT-079": "direct",
+    "QT-080": "direct",
+    "QT-081": "boundary",
+    "QT-082": "boundary",
+    "QT-083": "boundary",
+    "QT-084": "direct",
+    "QT-085": "direct",
+    "QT-086": "multi",
+    "QT-087": "multi",
+    "QT-088": "direct",
+    "QT-089": "partial",
+    "QT-090": "direct",
+    "QT-091": "boundary",
+    "QT-092": "paraphrase",
+    "QT-093": "direct",
+    "QT-094": "direct",
+    "QT-095": "paraphrase",
+    "QT-096": "direct",
+    "QT-097": "partial",
+    "QT-098": "orphan",
+    "QT-099": "orphan",
+    "QT-100": "orphan",
+    "QT-101": "paraphrase",
+    "QT-102": "paraphrase",
+    "QT-103": "same_topic",
+    "QT-104": "same_topic",
+    "QT-105": "same_topic",
+    "QT-106": "partial",
+    "QT-107": "partial",
+    "QT-108": "same_topic",
+    "QT-109": "direct",
+    "QT-110": "paraphrase",
+    "QT-111": "same_topic",
+    "QT-112": "same_topic",
+    "QT-113": "direct",
+    "QT-114": "same_topic",
+    "QT-115": "same_topic",
+    "QT-116": "paraphrase",
+    "QT-117": "paraphrase",
+    "QT-118": "orphan",
+    "QT-119": "paraphrase",
+    "QT-120": "partial"
+  }
+}
