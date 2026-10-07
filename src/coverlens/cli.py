@@ -24,6 +24,17 @@ class CliError(Exception):
     """A problem the user can fix; printed without a traceback."""
 
 
+def safe_stdout() -> None:
+    """Replace characters the console cannot encode instead of crashing.
+
+    LLM rationales can hold characters such as U+202F that a Windows console or
+    a redirected cp1252 stream cannot encode.
+    """
+    reconfigure = getattr(sys.stdout, "reconfigure", None)
+    if reconfigure is not None:
+        reconfigure(errors="replace")
+
+
 def positive_int(text: str) -> int:
     value = int(text)
     if value < 1:
@@ -109,6 +120,7 @@ def run_pipeline(args: argparse.Namespace) -> tuple[Analysis, list[Path]]:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    safe_stdout()
     args = build_parser().parse_args(argv)
     try:
         analysis, written = run_pipeline(args)

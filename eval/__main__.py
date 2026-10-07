@@ -12,7 +12,7 @@ from functools import partial
 from pathlib import Path
 
 from coverlens.adapters.xlsx_suite import XlsxSuiteAdapter
-from coverlens.cli import positive_int
+from coverlens.cli import positive_int, safe_stdout
 from coverlens.core.pack import load_pack
 from coverlens.core.report import Report
 from coverlens.pipeline import (
@@ -153,6 +153,7 @@ def format_comparison(result: Comparison, path: Path) -> str:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    safe_stdout()
     args = build_parser().parse_args(argv)
     paths = dataset_paths(args.dataset)
     args.domain = args.domain or paths.pack
