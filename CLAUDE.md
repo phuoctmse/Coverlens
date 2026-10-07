@@ -47,8 +47,12 @@ Current scope: PHASE 2 — phase 1 runs end to end on the OTT web domain (`domai
 ```
 src/coverlens/{core,adapters,verifiers,writers,cache}/   package code
 domains/ott_web/pack.yaml                                 domain pack
-data/ott_web/                                             input data (do not modify)
-eval/                                                     eval harness + canary
+domains/claims/pack.yaml                                  held-out domain pack
+data/ott_web/, data/claims/                               input data (do not modify)
+eval/                                                     eval harness, canary, bootstrap
+eval/datasets/build_claims.py                             generator of data/claims/
+eval/baselines/, eval/reviews/                            saved runs, human label reviews
+docs/                                                     plans and experiment results
 tests/                                                    pytest tests
 ```
 
@@ -61,6 +65,13 @@ uv run ruff check            # lint
 uv run ruff format           # format
 uv run coverlens run --domain domains/ott_web/pack.yaml --spec data/ott_web/user_stories.md --suite data/ott_web/test_cases.xlsx --out out/ [--fake]
 uv run python -m eval --fake   # score against answer_key.json; exits 1 if the Tier 1 canary fails
+uv run python -m eval --dataset claims --fake                 # the held-out domain
+uv run python -m eval ... --compare eval/baselines/<run>.json # gain, loss or noise vs a saved run
+uv run python -m eval ... --disagreements                     # list disagreements for label review
+# strongest measured judge (needs OLLAMA_API_KEY in .env):
+#   --ollama-url https://ollama.com --model gpt-oss:120b --num-predict 4096 --no-tier2
 ```
+
+Results so far are in `docs/experiments/` (claims held-out: 95/100 with gpt-oss:120b).
 
 Run ruff and pytest before every commit. Python 3.14 (user's choice; the original brief said 3.12), type hints everywhere.

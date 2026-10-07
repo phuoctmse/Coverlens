@@ -1,6 +1,6 @@
 [project]
 name = "coverlens"
-version = "0.1.0"
+version = "0.2.0"
 description = "Measures whether a test suite covers the requirements of a new feature and reports the gaps."
 readme = "README.md"
 authors = [
