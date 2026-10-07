@@ -137,3 +137,13 @@ labels that look debatable: CL-03.AC5, CL-06.AC2). Baselines:
 Decision: Tier 2 stays on by default (with llama3.1:8b it cut calls in half and
 did not lose accuracy); with a strong cloud judge, pass `--no-tier2`.
 Baselines: `eval/baselines/*gpt-oss-120b_judge-v1_notier2.json`.
+
+## C4 review of the claims disagreements
+
+With the best configuration (gpt-oss:120b, `judge-v1`, `--no-tier2`) the
+pipeline disagreed with the key on 5 of 100 criteria. The user reviewed all 5 on
+2026-10-07 (`eval/reviews/claims.yaml`) and confirmed the key each time, so
+95/100 stands. All five are lenient judge errors: a precondition taken for a
+check (CL-03.AC5), a missing exception or second limit (CL-05.AC2,
+CL-05.AC5), a neighbouring rule taken for this one (CL-06.AC2), and a boundary
+never crossed (CL-17.AC3).

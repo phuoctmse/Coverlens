@@ -1,0 +1,39 @@
+# Human review of answer-key labels for the claims domain. Only requirements
+# where the pipeline (gpt-oss:120b, judge-v1, --no-tier2) and the key disagree
+# are reviewed; list them with `python -m eval --dataset claims ... --disagreements`.
+reviews:
+  - requirement_id: CL-03.AC5
+    key_label: gap
+    reviewed_label: gap
+    covered_by: []
+    note: QT-090 starts from a claim already denied for wear and tear and only checks the letter; nothing tests that wear and tear is denied, nor the 'Excluded peril' reason.
+    reviewer: phuoctmse
+    date: 2026-10-07
+  - requirement_id: CL-05.AC2
+    key_label: gap
+    reviewed_label: gap
+    covered_by: []
+    note: QT-023 checks the 1,500 USD cap on an unscheduled ring but not the exception for scheduled items.
+    reviewer: phuoctmse
+    date: 2026-10-07
+  - requirement_id: CL-05.AC5
+    key_label: gap
+    reviewed_label: gap
+    covered_by: []
+    note: QT-026 checks that expenses stop when the repair is done but not the 12-month limit.
+    reviewer: phuoctmse
+    date: 2026-10-07
+  - requirement_id: CL-06.AC2
+    key_label: gap
+    reviewed_label: gap
+    covered_by: []
+    note: No case checks that a 5,000-50,000 USD payment is held until a supervisor approves; QT-030 belongs to the over-50,000 rule and QT-029 only checks routing.
+    reviewer: phuoctmse
+    date: 2026-10-07
+  - requirement_id: CL-17.AC3
+    key_label: gap
+    reviewed_label: gap
+    covered_by: []
+    note: QT-083's combined total (4,500 USD) stays under the adjuster limit; no case crosses a limit through the combined total.
+    reviewer: phuoctmse
+    date: 2026-10-07
