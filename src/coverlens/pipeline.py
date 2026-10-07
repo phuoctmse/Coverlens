@@ -88,6 +88,9 @@ class JudgeSettings:
     cache_dir: Path = DEFAULT_CACHE_DIR
     num_ctx: int = DEFAULT_OPTIONS["num_ctx"]
     num_predict: int = DEFAULT_OPTIONS["num_predict"]
+    tier2: bool = (
+        True  # False: skip the overlap rule, every open criterion goes to Tier 3
+    )
     api_key: str | None = field(default=None, repr=False)  # Ollama Cloud
 
 
@@ -151,7 +154,7 @@ def analyze(
     tier3, client = _tier3(judge, pack)
     tier2: Verifier = (
         OverlapVerifier(pack.tier2.min_overlap, pack.glossary)
-        if pack.tier2
+        if pack.tier2 and judge.tier2
         else NoopVerifier()
     )
     result = run_cascade(requirements, cases, pack, [tier2, tier3])

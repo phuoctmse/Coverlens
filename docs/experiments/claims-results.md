@@ -125,3 +125,15 @@ errors are all "covered" on a gap: three come from the Tier 2 overlap rule
 judge (partial covers CL-05.AC2 and CL-05.AC5, boundary CL-17.AC3, and two
 labels that look debatable: CL-03.AC5, CL-06.AC2). Baselines:
 `eval/baselines/*gpt-oss-120b*`.
+
+## gpt-oss:120b without Tier 2 (`--no-tier2`)
+
+| | with Tier 2 | without Tier 2 | paired comparison |
+|---|---|---|---|
+| ott_web | 51/52 | 51/52 | no change |
+| claims | 92/100 | 95/100, 95% [90%, 99%] | +3.0%, within noise; fixed CL-03.AC1, CL-07.AC4, CL-10.AC3 (the three Tier 2 false covers), broke none |
+| extra LLM calls | | ott +25, claims +31 | |
+
+Decision: Tier 2 stays on by default (with llama3.1:8b it cut calls in half and
+did not lose accuracy); with a strong cloud judge, pass `--no-tier2`.
+Baselines: `eval/baselines/*gpt-oss-120b_judge-v1_notier2.json`.

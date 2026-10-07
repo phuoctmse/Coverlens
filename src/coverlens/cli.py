@@ -65,6 +65,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="cap on reply tokens (raise it for thinking models)",
     )
     run.add_argument(
+        "--no-tier2",
+        dest="tier2",
+        action="store_false",
+        help="skip the Tier 2 overlap rule (useful with a strong LLM judge)",
+    )
+    run.add_argument(
         "--api-key-file",
         type=Path,
         help=f"file holding an Ollama Cloud key (default: ${API_KEY_ENV})",
@@ -80,6 +86,7 @@ def judge_settings(args: argparse.Namespace) -> JudgeSettings:
         cache_dir=args.cache_dir,
         num_ctx=args.num_ctx,
         num_predict=args.num_predict,
+        tier2=args.tier2,
         api_key=resolve_api_key(args.api_key_file),
     )
 

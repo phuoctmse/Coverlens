@@ -198,3 +198,14 @@ def test_unreadable_api_key_file_exits_1(
     )
     assert code == 1
     assert "missing_key.txt" in capsys.readouterr().err
+
+
+def test_no_tier2_flag_reaches_the_settings() -> None:
+    from coverlens.cli import build_parser, judge_settings
+
+    on = build_parser().parse_args(["run", "--domain", PACK, "--spec", SPEC])
+    off = build_parser().parse_args(
+        ["run", "--domain", PACK, "--spec", SPEC, "--no-tier2"]
+    )
+    assert judge_settings(on).tier2 is True
+    assert judge_settings(off).tier2 is False

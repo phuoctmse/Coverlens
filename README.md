@@ -42,7 +42,7 @@ OLLAMA_API_KEY=your-key
 key is never committed. Then:
 
 ```
-uv run coverlens run ... --ollama-url https://ollama.com --model gpt-oss:120b --num-predict 4096
+uv run coverlens run ... --ollama-url https://ollama.com --model gpt-oss:120b --num-predict 4096 --no-tier2
 ```
 
 The key is looked up in this order: `--api-key-file`, the `OLLAMA_API_KEY`
@@ -50,6 +50,9 @@ environment variable, then `.env` in the current directory. It is sent only as
 a request header; it is never written to the cache, the report or an error
 message. Thinking models spend reply tokens on reasoning, so give them a higher
 `--num-predict`.
+
+With a strong judge like this, `--no-tier2` skips the word-overlap rule: on the
+held-out claims set it was the source of three of the judge's eight errors.
 
 Options: `--model` (default `llama3.1:8b`), `--ollama-url` (default
 `http://127.0.0.1:11434`), `--cache-dir` (default `.coverlens_cache/`). Every

@@ -141,3 +141,14 @@ def test_pipeline_puts_overlap_in_the_tier_2_slot() -> None:
     )
     tiers = {row.tier for row in analysis.report.requirements}
     assert tiers == {1, 2, 3}
+
+
+def test_tier_2_can_be_switched_off() -> None:
+    data = ROOT / "data" / "ott_web"
+    analysis = analyze(
+        ROOT / "domains" / "ott_web" / "pack.yaml",
+        data / "user_stories.md",
+        data / "test_cases.xlsx",
+        JudgeSettings(fake=True, tier2=False),
+    )
+    assert {row.tier for row in analysis.report.requirements} == {1, 3}
