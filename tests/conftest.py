@@ -74,3 +74,15 @@ def fake_ollama() -> Iterator[FakeOllamaServer]:
     server = FakeOllamaServer()
     yield server
     server.close()
+
+
+@pytest.fixture(autouse=True)
+def no_real_api_key(
+    monkeypatch: pytest.MonkeyPatch, tmp_path_factory: pytest.TempPathFactory
+) -> None:
+    """Tests never see the developer's real Ollama Cloud key (.env or env var)."""
+    import coverlens.pipeline
+
+    monkeypatch.delenv("OLLAMA_API_KEY", raising=False)
+    absent = tmp_path_factory.mktemp("no_dotenv") / ".env"
+    monkeypatch.setattr(coverlens.pipeline, "DEFAULT_DOTENV", absent)

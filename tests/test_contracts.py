@@ -114,3 +114,20 @@ def test_pipeline_never_imports_eval() -> None:
             if any(m == "eval" or m.startswith("eval.") for m in modules):
                 offenders.append(str(file.relative_to(ROOT)))
     assert offenders == [], f"src/ imports eval/: {offenders}"
+
+
+def test_dotenv_is_never_committed() -> None:
+    """The real .env holds the Ollama Cloud key; git must ignore it."""
+    import subprocess
+
+    ignored = subprocess.run(
+        ["git", "check-ignore", "-q", ".env"], cwd=ROOT, check=False
+    )
+    assert ignored.returncode == 0, ".env must be listed in .gitignore"
+    tracked = subprocess.run(
+        ["git", "ls-files", "--error-unmatch", ".env"],
+        cwd=ROOT,
+        capture_output=True,
+        check=False,
+    )
+    assert tracked.returncode != 0, ".env is tracked by git"

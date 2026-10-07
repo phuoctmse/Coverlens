@@ -31,17 +31,25 @@ ollama pull llama3.1:8b
 uv run coverlens run --domain ... --spec ... --suite ... --out out/
 ```
 
-To use a model on Ollama Cloud instead (free plan, starter models only), put
-your API key in a file outside the repository and point at it:
+To use a model on Ollama Cloud instead (free plan, starter models only), copy
+`.env.example` to `.env` and put your key from ollama.com/settings/keys there:
 
 ```
-uv run coverlens run ... --ollama-url https://ollama.com --model gpt-oss:120b   --api-key-file ~/.ollama/cloud_api_key.txt --num-predict 4096
+OLLAMA_API_KEY=your-key
 ```
 
-The key can also come from the `OLLAMA_API_KEY` environment variable. It is
-sent only as a request header; it is never written to the cache, the report or
-an error message. Thinking models spend reply tokens on reasoning, so give them
-a higher `--num-predict`.
+`.env` is git-ignored (a contract test fails if it stops being ignored), so the
+key is never committed. Then:
+
+```
+uv run coverlens run ... --ollama-url https://ollama.com --model gpt-oss:120b --num-predict 4096
+```
+
+The key is looked up in this order: `--api-key-file`, the `OLLAMA_API_KEY`
+environment variable, then `.env` in the current directory. It is sent only as
+a request header; it is never written to the cache, the report or an error
+message. Thinking models spend reply tokens on reasoning, so give them a higher
+`--num-predict`.
 
 Options: `--model` (default `llama3.1:8b`), `--ollama-url` (default
 `http://127.0.0.1:11434`), `--cache-dir` (default `.coverlens_cache/`). Every

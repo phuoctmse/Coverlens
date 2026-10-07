@@ -1,4 +1,13 @@
 {
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Edit(./.env)",
+      "Bash(cat .env*)",
+      "Bash(type .env*)",
+      "PowerShell(Get-Content .env*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

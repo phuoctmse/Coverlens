@@ -35,12 +35,38 @@ class JudgeUnavailableError(Exception):
 
 
 API_KEY_ENV = "OLLAMA_API_KEY"
+DEFAULT_DOTENV = Path(".env")  # read from the directory the command runs in
 
 
-def resolve_api_key(key_file: Path | None) -> str | None:
-    """The Ollama Cloud key: from `key_file` if given, else the environment.
+def _from_dotenv(path: Path, name: str) -> str | None:
+    """Value of `name` in a .env file (KEY=value lines), or None.
 
-    Keep the file outside the repository; the key is never logged or cached.
+    Never echoes the file: callers only learn the value or that it is missing.
+    """
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return None
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        line = line.removeprefix("export ").strip()
+        key, sep, value = line.partition("=")
+        if sep and key.strip() == name:
+            value = value.strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+                value = value[1:-1]
+            return value or None
+    return None
+
+
+def resolve_api_key(key_file: Path | None, dotenv: Path | None = None) -> str | None:
+    """The Ollama Cloud key, from (in order) `key_file`, the OLLAMA_API_KEY
+    environment variable, or an OLLAMA_API_KEY line in `dotenv`.
+
+    The key is never logged, cached or written into a report. Keep `.env` out
+    of git (a contract test checks it is ignored).
     """
     if key_file is not None:
         try:
@@ -50,7 +76,8 @@ def resolve_api_key(key_file: Path | None) -> str | None:
         if not key:
             raise ValueError(f"{key_file}: API key file is empty")
         return key
-    return os.environ.get(API_KEY_ENV) or None
+    dotenv = DEFAULT_DOTENV if dotenv is None else dotenv  # looked up at call time
+    return os.environ.get(API_KEY_ENV) or _from_dotenv(dotenv, API_KEY_ENV)
 
 
 @dataclass(frozen=True)
